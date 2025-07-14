@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>test48</title>
+  <title>test49</title>
   <style>
     html, body {
       margin:0; padding:0; height:100%;
@@ -155,6 +155,48 @@
       window.removeEventListener('click', placeBox);
     }
 
+    function createInputPanel(box, arrow, obj) {
+      const container = document.createElement('div');
+      container.className = 'input-container';
+
+      const createInput = (placeholder, unit) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'input-with-unit';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.placeholder = placeholder;
+        const span = document.createElement('span');
+        span.textContent = unit;
+        wrap.append(input, span);
+        return [wrap, input];
+      };
+
+      const [massWrap, massInput] = createInput('질량', 'kg');
+      const [velWrap, velInput] = createInput('속도', 'm/s');
+      container.append(massWrap, velWrap);
+      box.append(container);
+
+      const doneBtn = document.createElement('button');
+      doneBtn.className = 'done-btn';
+      doneBtn.textContent = '완료';
+      box.append(doneBtn);
+
+      doneBtn.onclick = () => {
+        const m = massInput.value.trim();
+        const v = velInput.value.trim();
+        if (!m) return showAlert('질량을 입력해 주세요');
+        if (!v) return showAlert('속도를 입력해 주세요');
+        obj.velocity = parseFloat(v);
+        obj.mass = parseFloat(m);
+        container.remove();
+        doneBtn.remove();
+        const label = document.createElement('div');
+        label.className = 'label-text';
+        label.textContent = `${m} kg`;
+        box.append(label);
+      };
+    }
+
     function placeBox(e) {
       if (!delayPassed) return;
 
@@ -170,11 +212,15 @@
       arrow.textContent = '→';
       simulator.append(arrow);
 
+      const obj = { box, arrow, x, y, velocity: 0, direction: '→' };
+      objects.push(obj);
+
       const updateArrow = () => {
         const gap = -10;
         const rect = arrow.getBoundingClientRect();
-        if (arrow.textContent === '→') arrow.style.left = (x + 60 + gap) + 'px';
-        else arrow.style.left = (x - rect.width - gap) + 'px';
+        const baseX = parseFloat(box.style.left);
+        if (arrow.textContent === '→') arrow.style.left = (baseX + 60 + gap) + 'px';
+        else arrow.style.left = (baseX - rect.width - gap) + 'px';
         arrow.style.top = (y + (60 - rect.height) / 2) + 'px';
       };
 
@@ -185,9 +231,7 @@
       });
 
       updateArrow();
-
-      const obj = { box, arrow, x, y, velocity: 0, direction: '→' };
-      objects.push(obj);
+      createInputPanel(box, arrow, obj);
       stopTracking();
     }
 
@@ -199,14 +243,11 @@
       if (running) {
         interval = setInterval(() => {
           objects.forEach(obj => {
-            const speed = obj.velocity || 2;
-            const dx = (obj.arrow.textContent === '→' ? 1 : -1) * speed;
+            const dx = (obj.arrow.textContent === '→' ? 1 : -1) * obj.velocity;
             const currentX = parseFloat(obj.box.style.left);
-            const newX = currentX + dx;
-            const maxX = window.innerWidth - 60;
-
-            if ((dx > 0 && newX >= maxX) || (dx < 0 && newX <= 10)) return;
-            obj.box.style.left = newX + 'px';
+            const nextX = currentX + dx;
+            if ((dx > 0 && nextX >= window.innerWidth - 60) || (dx < 0 && nextX <= 10)) return;
+            obj.box.style.left = nextX + 'px';
             obj.arrow.style.left = parseFloat(obj.arrow.style.left) + dx + 'px';
           });
         }, 30);

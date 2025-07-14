@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test14</title>
+  <title>test15</title>
   <style>
     html, body {
       margin: 0;
@@ -125,14 +125,14 @@
       top: -50px;
       left: 50%;
       transform: translateX(-50%);
-      background-color: rgba(231, 76, 60, 0.85); /* 반투명 빨강 */
+      background-color: rgba(231, 76, 60, 0.85); /* 반투명 빨간색 */
       color: white;
       padding: 12px 24px;
       border-radius: 6px;
       font-weight: bold;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       z-index: 2000;
-      opacity: 0;
+      opacity: 0.85;
       animation-fill-mode: forwards;
     }
 
@@ -152,36 +152,18 @@
     }
 
     @keyframes fadeOut {
-      from {
-        opacity: 1;
-      }
-      to {
-        opacity: 0;
-      }
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
 
-    /* 이동방향 화살표 스타일 */
     .arrow {
       position: absolute;
       top: 50%;
-      left: 100%;
-      margin-left: 5px;
-      width: 80px;
-      height: 12px;
-      background: linear-gradient(to right, #2980b9, #3498db);
-      border-radius: 6px;
+      left: 105%;
       transform: translateY(-50%);
-      z-index: 850;
-    }
-
-    .arrow::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      right: 0;
-      transform: translateY(-50%);
-      border: 6px solid transparent;
-      border-left-color: #2980b9;
+      font-size: 20px;
+      color: black;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -203,7 +185,6 @@
     let tracking = false;
     let delayPassed = false;
 
-    // 상자 데이터 저장용 (질량, 속도)
     const objectData = new Map();
 
     btn.addEventListener('click', () => {
@@ -243,12 +224,10 @@
       alertBox.style.display = 'block';
       alertBox.style.animation = 'dropDown 0.5s forwards';
 
-      // 2.5초 후 페이드아웃
       setTimeout(() => {
         alertBox.style.animation = 'fadeOut 0.5s forwards';
       }, 2500);
 
-      // 완전히 사라진 후 숨김 처리
       alertBox.addEventListener('animationend', () => {
         if (alertBox.style.opacity === '0') {
           alertBox.style.display = 'none';
@@ -272,10 +251,8 @@
       box.style.left = x + 'px';
       box.style.top = y + 'px';
 
-      // 기본 질량/속도값 없으면 초기값 빈문자열
       objectData.set(box, { mass: '', velocity: '' });
 
-      // 완료 버튼 생성
       const doneBtn = document.createElement('button');
       doneBtn.className = 'done-btn';
       doneBtn.textContent = '완료';
@@ -283,7 +260,6 @@
       doneBtn.style.top = `${y - 30}px`;
       simulator.appendChild(doneBtn);
 
-      // 입력창 생성 함수
       function createInputContainer(massVal = '', velocityVal = '') {
         const inputContainer = document.createElement('div');
         inputContainer.className = 'input-container';
@@ -316,53 +292,36 @@
         return { inputContainer, massInput, velInput };
       }
 
-      // 처음 입력창 표시
       let { inputContainer, massInput, velInput } = createInputContainer('', '');
       box.appendChild(inputContainer);
 
-      // 화살표 만들기 (초기 상태)
       const arrow = document.createElement('div');
       arrow.className = 'arrow';
+      arrow.textContent = '→';
       box.appendChild(arrow);
 
       doneBtn.addEventListener('click', () => {
         const mass = massInput.value.trim();
         const velocity = velInput.value.trim();
 
-        if (mass === '' && velocity === '') {
-          showAlert('질량 또는 속도 중 적어도 하나를 입력해야 합니다.');
+        if (mass === '' || velocity === '') {
+          showAlert('질량과 속도를 입력해 주세요.');
           return;
         }
 
-        if (mass === '') {
-          showAlert('질량을 입력해주세요.');
-          return;
-        }
-
-        if (velocity === '') {
-          showAlert('속도를 입력해주세요.');
-          return;
-        }
-
-        // 데이터 저장
         objectData.set(box, { mass, velocity });
 
-        // 입력창, 버튼 제거
         inputContainer.remove();
         doneBtn.remove();
 
-        // 질량만 있을 때는 질량만 표시, 둘 다 있으면 질량 표시
         box.innerHTML = `${mass} kg`;
 
-        // 화살표 다시 붙이기
         box.appendChild(arrow);
       });
 
-      // 상자 클릭시 다시 입력창과 완료 버튼 보여주기 + 기존값 불러오기
       box.addEventListener('click', (event) => {
         event.stopPropagation();
 
-        // 이미 입력창이 열려있으면 무시
         if (box.querySelector('.input-container')) return;
 
         const savedData = objectData.get(box) || { mass: '', velocity: '' };
@@ -370,12 +329,9 @@
         box.appendChild(inputContainer);
 
         simulator.appendChild(doneBtn);
-
-        // 화살표는 입력중엔 안 보여야 하므로 숨김
         arrow.style.display = 'none';
       });
 
-      // 입력창 닫히면 화살표 다시 보이게 하기 위해 버튼 클릭 시 표시
       doneBtn.addEventListener('click', () => {
         arrow.style.display = 'block';
       });

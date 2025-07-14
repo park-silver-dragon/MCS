@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test70</title>
+  <title>test71</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
@@ -228,25 +228,36 @@ box.appendChild(momentumLabel);
   simulator.appendChild(box);
   simulator.appendChild(arrow);
 
+  const velocityLabel = document.createElement('div');
+velocityLabel.style.position = 'absolute';
+velocityLabel.style.fontSize = '12px';
+velocityLabel.style.fontWeight = 'bold';
+velocityLabel.style.color = '#000';
+velocityLabel.style.userSelect = 'none';
+velocityLabel.style.pointerEvents = 'none';
+
+simulator.appendChild(velocityLabel);
+
   // 운동량 표시용 div 추가
   
 
   const data = {
-    element: box,
-    arrow: arrow,
-    x: x,
-    y: y,
-    mass: '',
-    velocity: '',
-    direction: 1,
-    moving: false,
-    inputContainer: null,
-    doneBtn: null,
-    massInput: null,
-    velocityInput: null,
-    momentumLabel: momentumLabel, // 운동량 표시 요소 추가
-    label: label,
-  };
+  element: box,
+  arrow: arrow,
+  x: x,
+  y: y,
+  mass: '',
+  velocity: '',
+  direction: 1,
+  moving: false,
+  inputContainer: null,
+  doneBtn: null,
+  massInput: null,
+  velocityInput: null,
+  momentumLabel: momentumLabel,
+  label: label,
+  velocityLabel: velocityLabel,   // ← 이 부분 추가
+};
 
   arrows.push(arrow);
   objects.push(data);
@@ -267,13 +278,21 @@ box.appendChild(momentumLabel);
 function positionArrow(data) {
   const gap = -10;
   const arrowRect = data.arrow.getBoundingClientRect();
+  const boxY = data.y + (boxSize - arrowRect.height) / 2;
+
   if (data.direction === 1) {
     data.arrow.style.left = (data.x + boxSize + gap) + 'px';
+    data.velocityLabel.style.left = (data.x + boxSize + gap + 10) + 'px';  // 화살표 오른쪽에 속도 표시
   } else {
     data.arrow.style.left = (data.x - arrowRect.width - gap) + 'px';
+    data.velocityLabel.style.left = (data.x - arrowRect.width - gap + 10) + 'px'; // 왼쪽 방향도 동일하게
   }
-  data.arrow.style.top = (data.y + (boxSize - arrowRect.height) / 2) + 'px';
+
+  data.arrow.style.top = boxY + 'px';
+  data.velocityLabel.style.top = (boxY - 20) + 'px';  // 화살표 바로 위에 위치
+
   data.arrow.style.display = 'block';
+  data.velocityLabel.style.display = 'block';
 }
 
 function toggleDirection(data) {
@@ -350,10 +369,12 @@ function openInput(data) {
 data.velocity = v;
 data.label.textContent = `${m} kg`;
 
+
     data.arrow.style.display = 'block';
     // 운동량 계산 및 표시 (개별 물체)
 const massNum = parseFloat(data.mass) || 0;
 const velocityNum = parseFloat(data.velocity) || 0;
+  data.velocityLabel.textContent = `${velocityNum} m/s`;
 const momentum = massNum * velocityNum * data.direction;
 data.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)} N·s`;
 
@@ -441,11 +462,11 @@ function move() {
     let newX = obj.x + vx;
 
     // 벽 충돌 처리
-if (newX < wallThickness) {
-  newX = wallThickness;
-} else if (newX > window.innerWidth - wallThickness - boxSize) {
-  newX = window.innerWidth - wallThickness - boxSize;
-}
+    if (newX < wallThickness) {
+      newX = wallThickness;
+    } else if (newX > window.innerWidth - wallThickness - boxSize) {
+      newX = window.innerWidth - wallThickness - boxSize;
+    }
 
     obj.x = newX;
   });
@@ -459,9 +480,9 @@ if (newX < wallThickness) {
         // 충돌 발생
 
         // 충돌 후 파티클 효과 생성
-const collisionX = (objA.x + objB.x + boxSize) / 2;
-const collisionY = objA.y + boxSize / 2;
-createParticles(collisionX, collisionY);
+        const collisionX = (objA.x + objB.x + boxSize) / 2;
+        const collisionY = objA.y + boxSize / 2;
+        createParticles(collisionX, collisionY);
 
         const m1 = parseFloat(objA.mass) || 1;
         const m2 = parseFloat(objB.mass) || 1;
@@ -489,15 +510,14 @@ createParticles(collisionX, collisionY);
   }
 
   // 3. 운동량 계산 및 표시
-  
   objects.forEach(obj => {
     const massNum = parseFloat(obj.mass) || 0;
     const velocityNum = parseFloat(obj.velocity) || 0;
     const momentum = massNum * velocityNum * obj.direction;
-obj.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)} N·s`;
+    obj.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)} N·s`;
   });
 
-  // 4. 화면 위치 및 화살표, 버튼 위치 업데이트
+  // 4. 화면 위치 및 화살표, 속도 라벨, 버튼 위치 업데이트
   objects.forEach(obj => {
     obj.element.style.left = obj.x + 'px';
 
@@ -506,11 +526,24 @@ obj.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)} N·s`;
     if (obj.direction === 1) {
       obj.arrow.style.left = (obj.x + boxSize + gap) + 'px';
       obj.arrow.textContent = '→';
+
+      if (obj.velocityLabel) {
+        obj.velocityLabel.style.left = (obj.x + boxSize + gap + 10) + 'px';
+      }
     } else {
       obj.arrow.style.left = (obj.x - arrowRect.width - gap) + 'px';
       obj.arrow.textContent = '←';
+
+      if (obj.velocityLabel) {
+        obj.velocityLabel.style.left = (obj.x - arrowRect.width - gap + 10) + 'px';
+      }
     }
     obj.arrow.style.top = (obj.y + (boxSize - arrowRect.height) / 2) + 'px';
+
+    if (obj.velocityLabel) {
+      obj.velocityLabel.style.top = (obj.y + (boxSize - arrowRect.height) / 2 - 20) + 'px';
+      obj.velocityLabel.textContent = `${obj.velocity} m/s`;
+    }
 
     if (obj.doneBtn) {
       obj.doneBtn.style.left = obj.x + 'px';
@@ -524,14 +557,14 @@ obj.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)} N·s`;
   });
 
   // 운동량 총합 계산 및 표시
-let totalMomentum = 0;
-objects.forEach(obj => {
-  const massNum = parseFloat(obj.mass) || 0;
-  const velocityNum = parseFloat(obj.velocity) || 0;
-  const momentum = massNum * velocityNum * obj.direction;
-  totalMomentum += momentum;
-});
-document.getElementById('totalMomentum').textContent = `총 운동량: ${totalMomentum.toFixed(2)} N·s`;
+  let totalMomentum = 0;
+  objects.forEach(obj => {
+    const massNum = parseFloat(obj.mass) || 0;
+    const velocityNum = parseFloat(obj.velocity) || 0;
+    const momentum = massNum * velocityNum * obj.direction;
+    totalMomentum += momentum;
+  });
+  document.getElementById('totalMomentum').textContent = `총 운동량: ${totalMomentum.toFixed(2)} N·s`;
 
   animationId = requestAnimationFrame(move);
 }

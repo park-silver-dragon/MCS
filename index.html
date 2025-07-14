@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test35</title>
+  <title>test36</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn {
@@ -116,14 +116,13 @@
     }
 
     function showAlert(msg) {
-      alertBox.textContent = msg || '질량과 속도를 입력해 주세요';
+      alertBox.textContent = msg;
       alertBox.style.display = 'block';
       alertBox.style.animation = 'dropDown 0.5s forwards';
       setTimeout(() => alertBox.style.animation = 'fadeOut 0.5s forwards', 2500);
       alertBox.addEventListener('animationend', () => {
         if (alertBox.style.opacity === '0') {
-          alertBox.style.display = 'none';
-          alertBox.style.animation = '';
+          alertBox.style.display = 'none'; alertBox.style.animation = '';
         }
       }, { once: true });
     }
@@ -136,24 +135,27 @@
       box.style.left = x + 'px'; box.style.top = y + 'px';
       objectData.set(box, { mass:'', velocity:'', dir:'→' });
 
-      // 완료 버튼
-      const doneBtn = document.createElement('button');
-      doneBtn.className = 'done-btn'; doneBtn.textContent = '완료';
-      function updBtn(){ doneBtn.style.left = x + 'px'; doneBtn.style.top = (y - 30) + 'px'; }
-      updBtn(); simulator.appendChild(doneBtn);
+      simulator.append(box);
 
-      // 입력창 생성
-      function makeInputs(m,v){
-        const cont = document.createElement('div');
-        cont.className = 'input-container';
-        [['질량','kg',m],['속도','m/s',v]].forEach(([ph,unit,val])=>{
-          const row = document.createElement('div');
-          row.className = 'input-with-unit';
-          const inp = document.createElement('input');
-          inp.type = 'number'; inp.placeholder = ph; inp.value = val;
-          const span = document.createElement('span');
-          span.textContent = unit;
-          row.append(inp,span); cont.appendChild(row);
+      function createDoneBtn() {
+        const btn = document.createElement('button');
+        btn.className = 'done-btn';
+        btn.textContent = '완료';
+        btn.style.left = x + 'px';
+        btn.style.top = (y - 30) + 'px';
+        simulator.append(btn);
+        return btn;
+      }
+
+      let doneBtn = createDoneBtn();
+
+      function makeInputs(m, v) {
+        const cont = document.createElement('div'); cont.className = 'input-container';
+        [['질량','kg',m],['속도','m/s',v]].forEach(([ph, unit, val]) => {
+          const row = document.createElement('div'); row.className = 'input-with-unit';
+          const inp = document.createElement('input'); inp.type = 'number'; inp.placeholder = ph; inp.value = val;
+          const span = document.createElement('span'); span.textContent = unit;
+          row.append(inp, span); cont.appendChild(row);
         });
         return {
           cont,
@@ -161,23 +163,18 @@
           velInput: cont.children[1].querySelector('input')
         };
       }
-      let { cont: ic, massInput, velInput } = makeInputs('','');
+
+      let { cont: ic, massInput, velInput } = makeInputs('', '');
       box.append(ic);
 
-      // 화살표 생성
-      const arrow = document.createElement('div');
-      arrow.className = 'arrow'; arrow.textContent = '→';
-      simulator.appendChild(arrow);
+      const arrow = document.createElement('div'); arrow.className = 'arrow'; arrow.textContent = '→';
+      simulator.append(arrow);
 
-      function updateArrow(){
-        const gap = -5;
-        const boxW = 60;
+      function updateArrow() {
+        const gap = -5, boxW = 60;
         const rect = arrow.getBoundingClientRect();
-        if (arrow.textContent === '→') {
-          arrow.style.left = (x + boxW + gap) + 'px';
-        } else {
-          arrow.style.left = (x - rect.width - gap) + 'px';
-        }
+        if (arrow.textContent === '→') arrow.style.left = (x + boxW + gap) + 'px';
+        else arrow.style.left = (x - rect.width - gap) + 'px';
         arrow.style.top = (y + (boxW - rect.height) / 2) + 'px';
       }
       updateArrow();
@@ -188,44 +185,35 @@
         updateArrow();
       });
 
-      // 완료 처리
-      doneBtn.addEventListener('click', () => {
-        const m = massInput.value.trim();
-        const v = velInput.value.trim();
+      function attachDoneHandler(btnRef, icRef) {
+        btnRef.onclick = () => {
+          const m = massInput.value.trim();
+          const v = velInput.value.trim();
+          if (m === '') { showAlert('질량을 입력해 주세요'); return; }
+          if (v === '') { showAlert('속도를 입력해 주세요'); return; }
+          objectData.set(box, { mass: m, velocity: v, dir: arrow.textContent });
+          icRef.remove(); btnRef.remove();
+          let lbl = box.querySelector('.label-text');
+          if (!lbl) { lbl = document.createElement('div'); lbl.className = 'label-text'; box.append(lbl); }
+          lbl.textContent = `${m} kg`;
+          arrow.style.display = 'block';
+        };
+      }
 
-        if (m === '') { showAlert('질량을 입력해 주세요'); return; }
-        if (v === '') { showAlert('속도를 입력해 주세요'); return; }
+      attachDoneHandler(doneBtn, ic);
 
-        objectData.set(box, { mass: m, velocity: v, dir: arrow.textContent });
-        ic.remove(); doneBtn.remove();
-
-        let lbl = box.querySelector('.label-text');
-        if (!lbl) {
-          lbl = document.createElement('div');
-          lbl.className = 'label-text';
-          box.append(lbl);
-        }
-        lbl.textContent = `${m} kg`;
-
-        arrow.style.display = 'block';
-      });
-
-      // 재편집
       box.addEventListener('click', ev => {
         ev.stopPropagation();
         if (box.querySelector('.input-container')) return;
-
         const saved = objectData.get(box);
         let { cont: newIc, massInput: newM, velInput: newV } = makeInputs(saved.mass, saved.velocity);
         box.append(newIc);
-        simulator.append(doneBtn);
+        doneBtn = createDoneBtn();
+        attachDoneHandler(doneBtn, newIc);
         updateArrow();
-        // 화살표는 편집 중에도 유지됩니다
+        arrow.style.display = 'block';
         newM.focus();
       });
-
-      simulator.append(box);
-      stopTracking();
     }
   </script>
 </body>

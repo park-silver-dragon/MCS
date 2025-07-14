@@ -1,7 +1,8 @@
-<!DOCTYPE html><html lang="ko">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test40</title>
+  <title>test41</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startBtn {
@@ -14,6 +15,9 @@
     }
     #startBtn {
       left:160px; background:#27ae60; color:#fff; border-color:#1e8449;
+    }
+    #startBtn.running {
+      background:#c0392b; border-color:#922b21;
     }
     #ground {
       position:absolute; bottom:0; left:0;
@@ -86,7 +90,9 @@
   <div id="followBox"></div>
   <div id="alertBox" style="display:none;"></div>
   <div id="leftWall" class="wall"></div>
-  <div id="rightWall" class="wall"></div>  <script>
+  <div id="rightWall" class="wall"></div>
+
+  <script>
     const btn = document.getElementById('createObjectBtn');
     const startBtn = document.getElementById('startBtn');
     const followBox = document.getElementById('followBox');
@@ -94,7 +100,6 @@
     const alertBox = document.getElementById('alertBox');
     let tracking = false, delayPassed = false, running = false;
     const objectData = new Map();
-    const velocities = new Map();
 
     btn.addEventListener('click', () => {
       tracking = !tracking; delayPassed = false;
@@ -109,8 +114,14 @@
 
     startBtn.addEventListener('click', () => {
       running = !running;
-      startBtn.textContent = running ? '중지' : '시작';
-      if (running) moveObjects();
+      if(running){
+        startBtn.textContent = '중지';
+        startBtn.classList.add('running');
+        moveObjects();
+      } else {
+        startBtn.textContent = '시작';
+        startBtn.classList.remove('running');
+      }
     });
 
     function stopTracking() {
@@ -235,6 +246,9 @@
         arrow.style.display = 'block';
         newM.focus();
       });
+
+      // Store arrow element linked to box for movement
+      objectData.get(box).arrow = arrow;
     }
 
     function moveObjects() {
@@ -249,10 +263,21 @@
           const speed = parseFloat(data.velocity);
           pos += dir * speed;
           const max = window.innerWidth - wallPadding - box.offsetWidth;
-          if (pos < wallPadding || pos > max) return;
+          if (pos < wallPadding) pos = wallPadding;
+          else if (pos > max) pos = max;
           box.style.left = pos + 'px';
+          // Move arrow accordingly
+          if (data.arrow) {
+            const arrow = data.arrow;
+            const gap = -10, boxW = 60;
+            const rect = arrow.getBoundingClientRect();
+            if (arrow.textContent === '→') arrow.style.left = (pos + boxW + gap) + 'px';
+            else arrow.style.left = (pos - rect.width - gap) + 'px';
+            arrow.style.top = (box.offsetTop + (boxW - rect.height) / 2) + 'px';
+          }
         });
       }, interval);
     }
-  </script></body>
+  </script>
+</body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test43</title>
+  <title>test44</title>
   <style>
     html, body {
       margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif;
@@ -47,6 +47,7 @@
     .input-with-unit { position:relative; width:100%; }
     .input-with-unit input {
       width:100%; font-size:12px; padding-right:28px; box-sizing:border-box;
+      text-align: right;
     }
     .input-with-unit span {
       position:absolute; right:4px; top:50%; transform:translateY(-50%);
@@ -104,6 +105,9 @@
     const followBox = document.getElementById('followBox');
     const simulator = document.getElementById('simulator');
     const alertBox = document.getElementById('alertBox');
+    const leftWall = document.getElementById('leftWall');
+    const rightWall = document.getElementById('rightWall');
+
     let tracking = false, delayPassed = false, running = false;
     const objectData = new Map();
 
@@ -295,7 +299,8 @@
 
     // 움직임 처리
     function moveObjects() {
-      const wallPadding = 10; // 벽 너비
+      const wallPadding = leftWall.offsetWidth; // 벽 너비 (왼쪽벽 기준)
+      const rightWallRect = rightWall.getBoundingClientRect();
 
       function step() {
         if (!running) return;
@@ -309,21 +314,20 @@
 
           posX += dir * speed;
 
-          const maxX = window.innerWidth - wallPadding - box.offsetWidth;
           const minX = wallPadding;
+          const maxX = rightWallRect.left - box.offsetWidth;
 
           // 벽 충돌 시 위치 보정 및 이동 멈춤
           if (posX < minX) {
             posX = minX;
-            speed = 0;          // 벽에 닿으면 속도 0으로
+            speed = 0;
           } else if (posX > maxX) {
             posX = maxX;
-            speed = 0;          // 벽에 닿으면 속도 0으로
+            speed = 0;
           }
 
           box.style.left = posX + 'px';
 
-          // 속도 업데이트
           data.velocity = speed.toString();
 
           if (data.arrow) {

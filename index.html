@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test61</title>
+  <title>test62</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
@@ -191,6 +191,18 @@ function createObject(x, y) {
   simulator.appendChild(box);
   simulator.appendChild(arrow);
 
+  // 운동량 표시용 div 추가
+  const momentumLabel = document.createElement('div');
+  momentumLabel.className = 'label-text';
+  momentumLabel.style.position = 'absolute';
+  momentumLabel.style.top = '-20px';  // 물체 위쪽에 위치
+  momentumLabel.style.width = '100%';
+  momentumLabel.style.textAlign = 'center';
+  momentumLabel.style.fontWeight = 'bold';
+  momentumLabel.style.color = '#000';  // 검은색으로 눈에 띄게
+
+  box.appendChild(momentumLabel);
+
   const data = {
     element: box,
     arrow: arrow,
@@ -204,6 +216,7 @@ function createObject(x, y) {
     doneBtn: null,
     massInput: null,
     velocityInput: null,
+    momentumLabel: momentumLabel, // 운동량 표시 요소 추가
   };
 
   arrows.push(arrow);
@@ -401,7 +414,15 @@ function move() {
     }
   }
 
-  // 3. 화면 위치 및 화살표, 버튼 위치 업데이트
+  // 3. 운동량 계산 및 표시
+  objects.forEach(obj => {
+    const massNum = parseFloat(obj.mass) || 0;
+    const velocityNum = parseFloat(obj.velocity) || 0;
+    const momentum = massNum * velocityNum;
+    obj.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)}`;
+  });
+
+  // 4. 화면 위치 및 화살표, 버튼 위치 업데이트
   objects.forEach(obj => {
     obj.element.style.left = obj.x + 'px';
 

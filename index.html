@@ -154,7 +154,7 @@
       arrow.className='arrow'; arrow.textContent='→'; simulator.append(arrow);
 
       function updateArrow(){
-        const gap=2, boxW=60, rect=arrow.getBoundingClientRect();
+        const gap=1, boxW=60, rect=arrow.getBoundingClientRect();
         if(arrow.textContent==='→') {
           arrow.style.left=(x+boxW+gap)+'px';
         } else {

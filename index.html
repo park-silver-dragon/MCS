@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>test47</title>
+  <title>test48</title>
   <style>
     html, body {
       margin:0; padding:0; height:100%;
@@ -94,6 +94,125 @@
   </style>
 </head>
 <body>
-  <!-- 내용은 그대로이며, 오른쪽 벽에서 페이지 확장 방지 및 화살표는 화면 밖으로도 위치 가능함 -->
-</body>
+  <button id="createObjectBtn">물체 생성</button>
+  <button id="startBtn">시작</button>
+  <div id="simulator">
+    <div id="followBox"></div>
+  </div>
+  <div id="ground"></div>
+  <div id="alertBox" style="display:none;"></div>
+  <div id="leftWall" class="wall"></div>
+  <div id="rightWall" class="wall"></div>  <script>
+    const simulator = document.getElementById('simulator');
+    const followBox = document.getElementById('followBox');
+    const createBtn = document.getElementById('createObjectBtn');
+    const startBtn = document.getElementById('startBtn');
+    const alertBox = document.getElementById('alertBox');
+    let tracking = false, delayPassed = false;
+    let running = false;
+    let interval = null;
+
+    const objects = [];
+
+    function getBoxY() {
+      const ground = 120, boxH = 60, offset = -2;
+      return window.innerHeight - ground - boxH + offset;
+    }
+
+    function followMouse(e) {
+      followBox.style.left = e.clientX + 'px';
+      followBox.style.top = getBoxY() + 'px';
+    }
+
+    function showAlert(msg) {
+      alertBox.textContent = msg;
+      alertBox.style.display = 'block';
+      alertBox.style.animation = 'dropDown 0.5s forwards';
+      setTimeout(() => alertBox.style.animation = 'fadeOut 0.5s forwards', 2500);
+      alertBox.addEventListener('animationend', () => {
+        if (alertBox.style.opacity === '0') {
+          alertBox.style.display = 'none'; alertBox.style.animation = '';
+        }
+      }, { once: true });
+    }
+
+    createBtn.addEventListener('click', () => {
+      tracking = !tracking; delayPassed = false;
+      if (tracking) {
+        followBox.style.display = 'block';
+        createBtn.textContent = '취소';
+        window.addEventListener('mousemove', followMouse);
+        setTimeout(() => delayPassed = true, 300);
+        window.addEventListener('click', placeBox);
+      } else stopTracking();
+    });
+
+    function stopTracking() {
+      tracking = false; delayPassed = false;
+      followBox.style.display = 'none';
+      createBtn.textContent = '물체 생성';
+      window.removeEventListener('mousemove', followMouse);
+      window.removeEventListener('click', placeBox);
+    }
+
+    function placeBox(e) {
+      if (!delayPassed) return;
+
+      const box = document.createElement('div');
+      box.className = 'object';
+      const x = e.clientX - 30, y = getBoxY();
+      box.style.left = x + 'px';
+      box.style.top = y + 'px';
+      simulator.append(box);
+
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow';
+      arrow.textContent = '→';
+      simulator.append(arrow);
+
+      const updateArrow = () => {
+        const gap = -10;
+        const rect = arrow.getBoundingClientRect();
+        if (arrow.textContent === '→') arrow.style.left = (x + 60 + gap) + 'px';
+        else arrow.style.left = (x - rect.width - gap) + 'px';
+        arrow.style.top = (y + (60 - rect.height) / 2) + 'px';
+      };
+
+      arrow.addEventListener('click', ev => {
+        ev.stopPropagation();
+        arrow.textContent = arrow.textContent === '→' ? '←' : '→';
+        updateArrow();
+      });
+
+      updateArrow();
+
+      const obj = { box, arrow, x, y, velocity: 0, direction: '→' };
+      objects.push(obj);
+      stopTracking();
+    }
+
+    startBtn.addEventListener('click', () => {
+      running = !running;
+      startBtn.classList.toggle('running', running);
+      startBtn.textContent = running ? '중지' : '시작';
+
+      if (running) {
+        interval = setInterval(() => {
+          objects.forEach(obj => {
+            const speed = obj.velocity || 2;
+            const dx = (obj.arrow.textContent === '→' ? 1 : -1) * speed;
+            const currentX = parseFloat(obj.box.style.left);
+            const newX = currentX + dx;
+            const maxX = window.innerWidth - 60;
+
+            if ((dx > 0 && newX >= maxX) || (dx < 0 && newX <= 10)) return;
+            obj.box.style.left = newX + 'px';
+            obj.arrow.style.left = parseFloat(obj.arrow.style.left) + dx + 'px';
+          });
+        }, 30);
+      } else {
+        clearInterval(interval);
+      }
+    });
+  </script></body>
 </html>

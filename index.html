@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title> test7 </title>
+  <title>운동량 보존 시뮬레이터</title>
   <style>
     html, body {
       margin: 0;
@@ -18,18 +18,19 @@
       top: 20px;
       left: 20px;
       padding: 12px 20px;
-      background-color: #2980b9;
+      background-color: #e67e22; /* 주황색 유지 */
       color: white;
-      border: 3px solid #1f618d;
+      border: 3px solid #d35400;
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       z-index: 1000;
     }
+
     #createObjectBtn:hover {
-      background-color: #2471a3;
-      border-color: #154360;
+      background-color: #d35400;
+      border-color: #b03a2e;
     }
 
     #ground {
@@ -56,7 +57,7 @@
       position: absolute;
       width: 60px;
       height: 60px;
-      background-color: rgba(52, 152, 219, 0.5); /* 반투명 하늘색 */
+      background-color: rgba(52, 152, 219, 0.5);
       pointer-events: none;
       border-radius: 6px;
       display: none;
@@ -68,10 +69,28 @@
       position: absolute;
       width: 60px;
       height: 60px;
-      background-color: #3498db; /* 불투명 하늘색 */
-      border: 2px solid #2c3e50;  /* 진한 테두리 */
+      background-color: #3498db;
+      border: 2px solid #2c3e50;
       border-radius: 6px;
       z-index: 800;
+    }
+
+    .input-container {
+      position: absolute;
+      top: -50px;
+      left: 0;
+      width: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 1001;
+    }
+
+    .object input {
+      width: 58px;
+      font-size: 12px;
+      padding: 2px;
+      box-sizing: border-box;
     }
   </style>
 </head>
@@ -98,13 +117,8 @@
       if (tracking) {
         followBox.style.display = 'block';
         btn.textContent = '취소';
-
         window.addEventListener('mousemove', followMouse);
-
-        setTimeout(() => {
-          delayPassed = true;
-        }, 300);
-
+        setTimeout(() => delayPassed = true, 300);
         window.addEventListener('click', handleClickOnce);
       } else {
         stopTracking();
@@ -123,8 +137,7 @@
     function followMouse(e) {
       const groundHeight = 120;
       const boxHeight = 60;
-      const offsetY = 5; // 바닥보다 살짝 위
-
+      const offsetY = 5;
       followBox.style.left = e.clientX + 'px';
       followBox.style.top = (window.innerHeight - groundHeight - boxHeight - offsetY) + 'px';
     }
@@ -138,17 +151,45 @@
       const groundHeight = 120;
       const boxHeight = 60;
       const offsetY = 5;
-
       const x = e.clientX - 30;
       const y = window.innerHeight - groundHeight - boxHeight - offsetY;
 
       box.style.left = x + 'px';
       box.style.top = y + 'px';
 
-      simulator.appendChild(box);
+      // 클릭 시 입력창 표시
+      box.addEventListener('click', (event) => {
+        event.stopPropagation(); // 외부 클릭 무시
 
+        // 이미 입력창이 있으면 제거
+        const existing = box.querySelector('.input-container');
+        if (existing) {
+          existing.remove();
+          return;
+        }
+
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'input-container';
+
+        const input1 = document.createElement('input');
+        input1.placeholder = '질량';
+
+        const input2 = document.createElement('input');
+        input2.placeholder = '속도';
+
+        inputContainer.appendChild(input1);
+        inputContainer.appendChild(input2);
+        box.appendChild(inputContainer);
+      });
+
+      simulator.appendChild(box);
       stopTracking();
     }
+
+    // 상자 외 클릭 시 입력창 모두 제거
+    document.addEventListener('click', (e) => {
+      document.querySelectorAll('.input-container').forEach(c => c.remove());
+    });
   </script>
 
 </body>

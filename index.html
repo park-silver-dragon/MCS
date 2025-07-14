@@ -2,32 +2,32 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test41</title>
+  <title>test42</title>
   <style>
-    html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
+    html, body {
+      margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif;
+    }
     #createObjectBtn, #startBtn {
-      padding:12px 20px; font-size:16px; cursor:pointer;
-      border-radius:6px; border:3px solid; box-shadow:0 4px 8px rgba(0,0,0,0.3);
-      position:absolute; top:20px; z-index:1000;
+      position:absolute; top:20px; padding:12px 20px; border-radius:6px; font-size:16px; cursor:pointer;
+      box-shadow:0 4px 8px rgba(0,0,0,0.3); border:3px solid transparent; user-select:none;
+      z-index:1000;
     }
     #createObjectBtn {
       left:20px; background:#e67e22; color:#fff; border-color:#d35400;
     }
     #startBtn {
-      left:160px; background:#27ae60; color:#fff; border-color:#1e8449;
+      left:140px; background:#27ae60; color:#fff; border-color:#1e8449;
     }
     #startBtn.running {
       background:#c0392b; border-color:#922b21;
     }
     #ground {
-      position:absolute; bottom:0; left:0;
-      width:100%; height:120px;
+      position:absolute; bottom:0; left:0; width:100%; height:120px;
       background:linear-gradient(90deg,#7f8c8d,#bdc3c7);
       border-top:3px solid #2c3e50; z-index:10;
     }
     #simulator {
-      position:absolute; top:0; left:0;
-      width:100%; height:calc(100% - 120px);
+      position:absolute; top:0; left:0; width:100%; height:calc(100% - 120px);
       background:#fff; z-index:20;
     }
     #followBox {
@@ -56,13 +56,15 @@
       position:absolute; width:60px; font-size:12px; padding:3px 0;
       border:1px solid #1e8449; background:#27ae60; color:#fff;
       border-radius:4px; cursor:pointer; z-index:1001;
+      top: -30px; left: 0;
     }
     #alertBox {
       position:fixed; top:-50px; left:50%; transform:translateX(-50%);
-      background:rgba(231,76,60,0.85); color:#fff;
+      background:rgba(231,76,60,0.7); color:#fff;
       padding:12px 24px; border-radius:6px; font-weight:bold;
       box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:2000;
       opacity:0.85; animation-fill-mode:forwards;
+      user-select:none;
     }
     @keyframes dropDown {
       0% { top:-50px; opacity:0 }
@@ -74,12 +76,16 @@
     .arrow {
       position:absolute; font-size:72px; font-weight:bold; color:#000;
       cursor:pointer; user-select:none; z-index:700;
+      transition: left 0.1s;
     }
     .wall {
-      position:absolute; top:0; width:20px; height:100%; background:#7f8c8d; z-index:30;
+      position: absolute;
+      top: 0; bottom: 120px; width: 10px;
+      background: #2c3e50;
+      z-index: 900;
     }
-    #leftWall { left:0; }
-    #rightWall { right:0; }
+    #leftWall { left: 0; }
+    #rightWall { right: 0; }
   </style>
 </head>
 <body>
@@ -159,31 +165,58 @@
       if (!delayPassed) return;
       stopTracking();
 
+      // 클릭 위치가 simulator 영역인지 확인 (ground 위쪽)
+      const simRect = simulator.getBoundingClientRect();
+      if (e.clientY > simRect.bottom) return;
+
       const box = document.createElement('div');
       box.className = 'object';
       const x = e.clientX - 30, y = getBoxY();
       box.style.left = x + 'px'; box.style.top = y + 'px';
       simulator.append(box);
 
+      // 기본 데이터 저장
       objectData.set(box, { mass: '', velocity: '', dir: '→' });
 
-      function createDoneBtn() {
-        const btn = document.createElement('button');
-        btn.className = 'done-btn';
-        btn.textContent = '완료';
-        btn.style.left = x + 'px';
-        btn.style.top = (y - 30) + 'px';
-        simulator.append(btn);
-        return btn;
-      }
+      // 화살표 생성 및 연결
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow';
+      arrow.textContent = '→';
+      simulator.append(arrow);
+      objectData.get(box).arrow = arrow;
 
+      // 위치 업데이트 함수
+      function updateArrowPosition() {
+        const gap = -10, boxW = 60;
+        const rect = arrow.getBoundingClientRect();
+        if (arrow.textContent === '→') arrow.style.left = (parseFloat(box.style.left) + boxW + gap) + 'px';
+        else arrow.style.left = (parseFloat(box.style.left) - rect.width - gap) + 'px';
+        arrow.style.top = (parseFloat(box.style.top) + (boxW - rect.height) / 2) + 'px';
+      }
+      updateArrowPosition();
+
+      arrow.addEventListener('click', ev => {
+        ev.stopPropagation();
+        arrow.textContent = arrow.textContent === '→' ? '←' : '→';
+        objectData.get(box).dir = arrow.textContent;
+        updateArrowPosition();
+      });
+
+      // 완료 버튼과 입력창 함수
       function makeInputs(m, v) {
         const cont = document.createElement('div'); cont.className = 'input-container';
         [['질량','kg',m],['속도','m/s',v]].forEach(([ph, unit, val]) => {
           const row = document.createElement('div'); row.className = 'input-with-unit';
-          const inp = document.createElement('input'); inp.type = 'number'; inp.placeholder = ph; inp.value = val || '';
+          const inp = document.createElement('input');
+          inp.type = 'number';
+          inp.placeholder = ph;
+          inp.value = val || '';
+          inp.min = "0";
+          inp.step = "any";
+          inp.style.textAlign = 'right';
           const span = document.createElement('span'); span.textContent = unit;
-          row.append(inp, span); cont.appendChild(row);
+          row.append(inp, span);
+          cont.appendChild(row);
         });
         return {
           cont,
@@ -192,92 +225,119 @@
         };
       }
 
-      const { cont: ic, massInput, velInput } = makeInputs('', '');
-      box.append(ic);
-      let doneBtn = createDoneBtn();
+      let savedData = objectData.get(box);
 
-      const arrow = document.createElement('div'); arrow.className = 'arrow'; arrow.textContent = '→';
-      simulator.append(arrow);
+      function openInputs() {
+        if (box.querySelector('.input-container')) return; // 이미 열려있으면 무시
+        const { cont: ic, massInput, velInput } = makeInputs(savedData.mass, savedData.velocity);
+        box.append(ic);
 
-      function updateArrow() {
-        const gap = -10, boxW = 60;
-        const rect = arrow.getBoundingClientRect();
-        if (arrow.textContent === '→') arrow.style.left = (x + boxW + gap) + 'px';
-        else arrow.style.left = (x - rect.width - gap) + 'px';
-        arrow.style.top = (y + (boxW - rect.height) / 2) + 'px';
-      }
-      updateArrow();
+        const doneBtn = document.createElement('button');
+        doneBtn.className = 'done-btn';
+        doneBtn.textContent = '완료';
+        box.append(doneBtn);
 
-      arrow.addEventListener('click', ev => {
-        ev.stopPropagation();
-        arrow.textContent = arrow.textContent === '→' ? '←' : '→';
-        updateArrow();
-      });
+        doneBtn.onclick = (ev) => {
+          ev.stopPropagation();
+          const m = massInput.value.trim();
+          const v = velInput.value.trim();
 
-      function attachDoneHandler(doneRef, massRef, velRef, icRef) {
-        doneRef.onclick = () => {
-          const m = massRef.value.trim();
-          const v = velRef.value.trim();
-          if (m === '') { showAlert('질량을 입력해 주세요'); return; }
-          if (v === '') { showAlert('속도를 입력해 주세요'); return; }
-          objectData.set(box, { mass: m, velocity: v, dir: arrow.textContent });
-          icRef.remove(); doneRef.remove();
+          if (m === '' && v === '') {
+            showAlert('질량과 속도를 입력해 주세요');
+            return;
+          }
+          if (m === '') {
+            showAlert('질량을 입력해 주세요');
+            return;
+          }
+          if (v === '') {
+            showAlert('속도를 입력해 주세요');
+            return;
+          }
+
+          savedData.mass = m;
+          savedData.velocity = v;
+          savedData.dir = savedData.dir || '→';
+
+          // 텍스트 표시
           let lbl = box.querySelector('.label-text');
           if (!lbl) {
-            lbl = document.createElement('div'); lbl.className = 'label-text'; box.append(lbl);
+            lbl = document.createElement('div');
+            lbl.className = 'label-text';
+            box.append(lbl);
           }
           lbl.textContent = `${m} kg`;
-          arrow.style.display = 'block';
-        };
-      }
 
-      attachDoneHandler(doneBtn, massInput, velInput, ic);
+          // 입력창 및 완료버튼 제거
+          ic.remove();
+          doneBtn.remove();
+
+          // 화살표 보이게
+          if(savedData.arrow) savedData.arrow.style.display = 'block';
+        };
+
+        massInput.focus();
+      }
 
       box.addEventListener('click', ev => {
         ev.stopPropagation();
-        if (box.querySelector('.input-container')) return;
-        const saved = objectData.get(box);
-        const { cont: newIc, massInput: newM, velInput: newV } = makeInputs(saved.mass, saved.velocity);
-        box.append(newIc);
-        doneBtn = createDoneBtn();
-        attachDoneHandler(doneBtn, newM, newV, newIc);
-        updateArrow();
-        arrow.textContent = saved.dir || '→';
-        arrow.style.display = 'block';
-        newM.focus();
+        openInputs();
       });
 
-      // Store arrow element linked to box for movement
-      objectData.get(box).arrow = arrow;
+      // 저장된 방향과 값으로 화살표 보이고 위치 업데이트
+      savedData.arrow = arrow;
+      savedData.dir = arrow.textContent;
+      savedData.mass = '';
+      savedData.velocity = '';
+
+      arrow.style.display = 'block';
     }
 
+    // 움직임 처리
     function moveObjects() {
       const interval = 20; // ms
-      const wallPadding = 20;
-      const timer = setInterval(() => {
-        if (!running) return clearInterval(timer);
+      const wallPadding = 10; // 벽 너비
+
+      function step() {
+        if (!running) return;
+
         objectData.forEach((data, box) => {
           if (!data.velocity || !data.mass) return;
-          let pos = box.offsetLeft;
+
+          let posX = parseFloat(box.style.left);
           const dir = data.dir === '→' ? 1 : -1;
           const speed = parseFloat(data.velocity);
-          pos += dir * speed;
-          const max = window.innerWidth - wallPadding - box.offsetWidth;
-          if (pos < wallPadding) pos = wallPadding;
-          else if (pos > max) pos = max;
-          box.style.left = pos + 'px';
-          // Move arrow accordingly
+
+          posX += dir * speed;
+
+          const maxX = window.innerWidth - wallPadding - box.offsetWidth;
+          const minX = wallPadding;
+
+          // 벽 충돌 시 위치 보정 및 이동 멈춤
+          if (posX < minX) {
+            posX = minX;
+          } else if (posX > maxX) {
+            posX = maxX;
+          }
+
+          box.style.left = posX + 'px';
+
           if (data.arrow) {
             const arrow = data.arrow;
             const gap = -10, boxW = 60;
             const rect = arrow.getBoundingClientRect();
-            if (arrow.textContent === '→') arrow.style.left = (pos + boxW + gap) + 'px';
-            else arrow.style.left = (pos - rect.width - gap) + 'px';
-            arrow.style.top = (box.offsetTop + (boxW - rect.height) / 2) + 'px';
+            if (arrow.textContent === '→') arrow.style.left = (posX + boxW + gap) + 'px';
+            else arrow.style.left = (posX - rect.width - gap) + 'px';
+            arrow.style.top = (parseFloat(box.style.top) + (boxW - rect.height) / 2) + 'px';
           }
         });
-      }, interval);
+
+        requestAnimationFrame(step);
+      }
+
+      requestAnimationFrame(step);
     }
+
   </script>
 </body>
 </html>

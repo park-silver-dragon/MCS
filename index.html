@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>test49</title>
+  <title>test50</title>
   <style>
     html, body {
       margin:0; padding:0; height:100%;
@@ -212,7 +212,7 @@
       arrow.textContent = '→';
       simulator.append(arrow);
 
-      const obj = { box, arrow, x, y, velocity: 0, direction: '→' };
+      const obj = { box, arrow, x, y, velocity: 0, mass: 1, direction: '→' };
       objects.push(obj);
 
       const updateArrow = () => {
@@ -235,6 +235,12 @@
       stopTracking();
     }
 
+    function checkCollision(o1, o2) {
+      const x1 = parseFloat(o1.box.style.left);
+      const x2 = parseFloat(o2.box.style.left);
+      return Math.abs(x1 - x2) < 60;
+    }
+
     startBtn.addEventListener('click', () => {
       running = !running;
       startBtn.classList.toggle('running', running);
@@ -242,14 +248,39 @@
 
       if (running) {
         interval = setInterval(() => {
-          objects.forEach(obj => {
+          for (let i = 0; i < objects.length; i++) {
+            const obj = objects[i];
             const dx = (obj.arrow.textContent === '→' ? 1 : -1) * obj.velocity;
-            const currentX = parseFloat(obj.box.style.left);
-            const nextX = currentX + dx;
-            if ((dx > 0 && nextX >= window.innerWidth - 60) || (dx < 0 && nextX <= 10)) return;
+            let nextX = parseFloat(obj.box.style.left) + dx;
+
+            // 벽 충돌 감지
+            if ((dx > 0 && nextX >= window.innerWidth - 60) || (dx < 0 && nextX <= 10)) {
+              obj.velocity = 0;
+              continue;
+            }
+
+            // 물체 간 충돌
+            for (let j = i + 1; j < objects.length; j++) {
+              const other = objects[j];
+              if (checkCollision(obj, other)) {
+                // 1차원 완전탄성충돌 공식
+                const m1 = obj.mass, m2 = other.mass;
+                const v1 = (obj.arrow.textContent === '→' ? obj.velocity : -obj.velocity);
+                const v2 = (other.arrow.textContent === '→' ? other.velocity : -other.velocity);
+                const newV1 = (m1 - m2)/(m1 + m2)*v1 + (2*m2)/(m1 + m2)*v2;
+                const newV2 = (2*m1)/(m1 + m2)*v1 + (m2 - m1)/(m1 + m2)*v2;
+
+                obj.velocity = Math.abs(newV1);
+                other.velocity = Math.abs(newV2);
+                obj.arrow.textContent = newV1 >= 0 ? '→' : '←';
+                other.arrow.textContent = newV2 >= 0 ? '→' : '←';
+              }
+            }
+
             obj.box.style.left = nextX + 'px';
-            obj.arrow.style.left = parseFloat(obj.arrow.style.left) + dx + 'px';
-          });
+            const arrowShift = (obj.arrow.textContent === '→' ? 1 : -1) * obj.velocity;
+            obj.arrow.style.left = parseFloat(obj.arrow.style.left) + arrowShift + 'px';
+          }
         }, 30);
       } else {
         clearInterval(interval);

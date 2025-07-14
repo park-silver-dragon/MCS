@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<title> test3 </title>
+<title> test4 </title>
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%;
@@ -95,8 +95,11 @@
   });
 
   function followMouse(e) {
+    const groundHeight = 120;
+    const boxHeight = 60;
+
     followBox.style.left = e.clientX + 'px';
-    followBox.style.top = e.clientY + 'px';
+    followBox.style.top = (window.innerHeight - groundHeight - boxHeight) + 'px';
   }
 </script>
 

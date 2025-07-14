@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test44</title>
+  <title>test45</title>
   <style>
     html, body {
       margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif;
@@ -29,6 +29,7 @@
     #simulator {
       position:absolute; top:0; left:0; width:100%; height:calc(100% - 120px);
       background:#fff; z-index:20;
+      overflow-x: hidden; /* 스크롤 방지 */
     }
     #followBox {
       position:absolute; width:60px; height:60px;
@@ -169,7 +170,6 @@
       if (!delayPassed) return;
       stopTracking();
 
-      // 클릭 위치가 simulator 영역인지 확인 (ground 위쪽)
       const simRect = simulator.getBoundingClientRect();
       if (e.clientY > simRect.bottom) return;
 
@@ -179,17 +179,14 @@
       box.style.left = x + 'px'; box.style.top = y + 'px';
       simulator.append(box);
 
-      // 기본 데이터 저장
       objectData.set(box, { mass: '', velocity: '', dir: '→' });
 
-      // 화살표 생성 및 연결
       const arrow = document.createElement('div');
       arrow.className = 'arrow';
       arrow.textContent = '→';
       simulator.append(arrow);
       objectData.get(box).arrow = arrow;
 
-      // 위치 업데이트 함수
       function updateArrowPosition() {
         const gap = -10, boxW = 60;
         const rect = arrow.getBoundingClientRect();
@@ -206,7 +203,6 @@
         updateArrowPosition();
       });
 
-      // 완료 버튼과 입력창 함수
       function makeInputs(m, v) {
         const cont = document.createElement('div'); cont.className = 'input-container';
         [['질량','kg',m],['속도','m/s',v]].forEach(([ph, unit, val]) => {
@@ -232,7 +228,7 @@
       let savedData = objectData.get(box);
 
       function openInputs() {
-        if (box.querySelector('.input-container')) return; // 이미 열려있으면 무시
+        if (box.querySelector('.input-container')) return;
         const { cont: ic, massInput, velInput } = makeInputs(savedData.mass, savedData.velocity);
         box.append(ic);
 
@@ -263,7 +259,6 @@
           savedData.velocity = v;
           savedData.dir = savedData.dir || '→';
 
-          // 텍스트 표시
           let lbl = box.querySelector('.label-text');
           if (!lbl) {
             lbl = document.createElement('div');
@@ -272,11 +267,9 @@
           }
           lbl.textContent = `${m} kg`;
 
-          // 입력창 및 완료버튼 제거
           ic.remove();
           doneBtn.remove();
 
-          // 화살표 보이게
           if(savedData.arrow) savedData.arrow.style.display = 'block';
         };
 
@@ -288,7 +281,6 @@
         openInputs();
       });
 
-      // 저장된 방향과 값으로 화살표 보이고 위치 업데이트
       savedData.arrow = arrow;
       savedData.dir = arrow.textContent;
       savedData.mass = '';
@@ -297,10 +289,10 @@
       arrow.style.display = 'block';
     }
 
-    // 움직임 처리
     function moveObjects() {
-      const wallPadding = leftWall.offsetWidth; // 벽 너비 (왼쪽벽 기준)
+      const wallPadding = leftWall.offsetWidth;
       const rightWallRect = rightWall.getBoundingClientRect();
+      const arrowWidth = 30;
 
       function step() {
         if (!running) return;
@@ -315,9 +307,8 @@
           posX += dir * speed;
 
           const minX = wallPadding;
-          const maxX = rightWallRect.left - box.offsetWidth;
+          const maxX = rightWallRect.left - box.offsetWidth - arrowWidth;
 
-          // 벽 충돌 시 위치 보정 및 이동 멈춤
           if (posX < minX) {
             posX = minX;
             speed = 0;

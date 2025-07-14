@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>55</title>
+  <title>test56</title>
   <style>
     html, body {
       margin: 0; padding: 0; height: 100%; overflow: hidden;
@@ -12,6 +12,7 @@
       padding: 12px 20px; font-size: 16px; cursor: pointer;
       border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       position: absolute; top: 20px; z-index: 1000;
+      user-select:none;
     }
     #createObjectBtn {
       left: 20px; background: #e67e22; color: #fff;
@@ -60,6 +61,7 @@
       position: absolute; width: 60px; font-size: 12px; padding: 3px 0;
       border: 1px solid #1e8449; background: #27ae60; color: #fff;
       border-radius: 4px; cursor: pointer; z-index: 1001;
+      user-select:none;
     }
     #alertBox {
       position: fixed; top: -50px; left: 50%; transform: translateX(-50%);
@@ -67,6 +69,7 @@
       padding: 12px 24px; border-radius: 6px; font-weight: bold;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 2000;
       opacity: 0.85; animation-fill-mode: forwards;
+      pointer-events:none;
     }
     @keyframes dropDown {
       0% { top: -50px; opacity: 0 }
@@ -78,6 +81,7 @@
     .arrow {
       position: absolute; font-size: 72px; font-weight: bold;
       color: #000; cursor: pointer; user-select: none; z-index: 700;
+      user-select:none;
     }
   </style>
 </head>
@@ -95,6 +99,7 @@
     const followBox = document.getElementById('followBox');
     const simulator = document.getElementById('simulator');
     const alertBox = document.getElementById('alertBox');
+
     let tracking = false, delayPassed = false, moving = false;
     const objects = [];
 
@@ -153,7 +158,7 @@
       box.className = 'object';
       const x = e.clientX - 30, y = getBoxY();
       box.style.left = x + 'px'; box.style.top = y + 'px';
-      simulator.append(box);
+      simulator.appendChild(box);
 
       const arrow = document.createElement('div');
       arrow.className = 'arrow';
@@ -204,11 +209,23 @@
       function applyInputs() {
         const m = massInput.value.trim();
         const v = velInput.value.trim();
-        if (m === '') { showAlert('질량을 입력해 주세요'); return false; }
-        if (v === '') { showAlert('속도를 입력해 주세요'); return false; }
+
+        if (m === '' && v === '') {
+          showAlert('질량과 속도를 입력해 주세요');
+          return false;
+        }
+        if (m === '') {
+          showAlert('질량을 입력해 주세요');
+          return false;
+        }
+        if (v === '') {
+          showAlert('속도를 입력해 주세요');
+          return false;
+        }
         obj.mass = parseFloat(m);
         obj.velocity = parseFloat(v);
         obj.vx = (obj.dir === '→' ? 1 : -1) * obj.velocity;
+
         const lbl = box.querySelector('.label-text') || document.createElement('div');
         lbl.className = 'label-text';
         lbl.textContent = `${m} kg`;
@@ -242,23 +259,76 @@
       arrow.style.top = (boxY + (boxW - rect.height) / 2) + 'px';
     }
 
+    // 운동량 보존 충돌 처리 함수
+    function checkCollisionAndResolve(obj1, obj2) {
+      const x1 = parseFloat(obj1.box.style.left);
+      const x2 = parseFloat(obj2.box.style.left);
+      const size = 60;
+      if (x2 <= x1 + size && x1 <= x2 + size) { // 충돌 감지 (단순 좌우 박스 겹침)
+        // 운동량 보존 법칙 계산
+        // 1차원 탄성 충돌 공식
+        const m1 = obj1.mass;
+        const m2 = obj2.mass;
+        let v1 = obj1.vx;
+        let v2 = obj2.vx;
+
+        if (m1 && m2) { // 둘 다 질량 있을 때만 계산
+          const newV1 = ((m1 - m2) * v1 + 2 * m2 * v2) / (m1 + m2);
+          const newV2 = ((m2 - m1) * v2 + 2 * m1 * v1) / (m1 + m2);
+
+          obj1.vx = newV1;
+          obj2.vx = newV2;
+
+          // 방향 바꾸기 & 절대값 유지 + 가 됨
+          obj1.dir = obj1.vx >= 0 ? '→' : '←';
+          obj2.dir = obj2.vx >= 0 ? '→' : '←';
+          obj1.vx = Math.abs(obj1.vx) * (obj1.dir === '→' ? 1 : -1);
+          obj2.vx = Math.abs(obj2.vx) * (obj2.dir === '→' ? 1 : -1);
+
+          obj1.arrow.textContent = obj1.dir;
+          obj2.arrow.textContent = obj2.dir;
+
+          // 충돌 시 겹치지 않게 위치 보정 (살짝 밀어냄)
+          if (obj1.vx > 0) {
+            obj1.box.style.left = (x2 - size) + 'px';
+          } else {
+            obj1.box.style.left = (x2 + size) + 'px';
+          }
+          updateArrow(obj1);
+          updateArrow(obj2);
+        }
+        return true;
+      }
+      return false;
+    }
+
     function animate() {
       if (moving) {
+        // 물체별 이동
         for (let obj of objects) {
           const box = obj.box;
           let x = parseFloat(box.style.left);
           x += obj.vx;
 
-          if (x <= 10) { x = 10; obj.vx = 0; obj.dir = '→'; obj.arrow.textContent = '→'; }
+          // 왼쪽 벽 충돌
+          if (x <= 10) {
+            x = 10;
+            obj.vx = 0;
+          }
+          // 오른쪽 벽 충돌
           if (x + 60 >= window.innerWidth - 10) {
             x = window.innerWidth - 70;
             obj.vx = 0;
-            obj.dir = '←';
-            obj.arrow.textContent = '←';
           }
-
           box.style.left = x + 'px';
           updateArrow(obj);
+        }
+
+        // 충돌 처리 (모든 물체 쌍 검사)
+        for (let i = 0; i < objects.length; i++) {
+          for (let j = i + 1; j < objects.length; j++) {
+            checkCollisionAndResolve(objects[i], objects[j]);
+          }
         }
       }
       requestAnimationFrame(animate);

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test64</title>
+  <title>test65</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
@@ -430,8 +430,8 @@ function move() {
   objects.forEach(obj => {
     const massNum = parseFloat(obj.mass) || 0;
     const velocityNum = parseFloat(obj.velocity) || 0;
-    const momentum = massNum * velocityNum;
-    obj.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)}`;
+    const momentum = massNum * velocityNum * obj.direction;
+obj.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)}`;
   });
 
   // 4. 화면 위치 및 화살표, 버튼 위치 업데이트

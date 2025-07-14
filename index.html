@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test62</title>
+  <title>test63</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
@@ -61,6 +61,17 @@
       z-index:800; color:#fff; font-size:12px;
     }
     .label-text { font-size:14px; color:#fff; pointer-events:none; user-select:none; }
+    .momentum-label {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #000;
+  font-weight: bold;
+  pointer-events: none;
+  user-select: none;
+}
     .input-container { display:flex; flex-direction:column; gap:4px; width:100%; }
     .input-with-unit { position:relative; width:100%; }
     .input-with-unit input {
@@ -183,6 +194,17 @@ function createObject(x, y) {
   box.className = 'object';
   box.style.left = x + 'px';
   box.style.top = y + 'px';
+  // 질량 표시 (물체 안쪽)
+const label = document.createElement('div');
+label.className = 'label-text';
+label.textContent = '';
+box.appendChild(label);
+
+// 운동량 표시 (물체 위쪽)
+const momentumLabel = document.createElement('div');
+momentumLabel.className = 'momentum-label';
+momentumLabel.textContent = '';
+box.appendChild(momentumLabel);
 
   const arrow = document.createElement('div');
   arrow.className = 'arrow';
@@ -192,16 +214,7 @@ function createObject(x, y) {
   simulator.appendChild(arrow);
 
   // 운동량 표시용 div 추가
-  const momentumLabel = document.createElement('div');
-  momentumLabel.className = 'label-text';
-  momentumLabel.style.position = 'absolute';
-  momentumLabel.style.top = '-20px';  // 물체 위쪽에 위치
-  momentumLabel.style.width = '100%';
-  momentumLabel.style.textAlign = 'center';
-  momentumLabel.style.fontWeight = 'bold';
-  momentumLabel.style.color = '#000';  // 검은색으로 눈에 띄게
-
-  box.appendChild(momentumLabel);
+  
 
   const data = {
     element: box,
@@ -217,6 +230,7 @@ function createObject(x, y) {
     massInput: null,
     velocityInput: null,
     momentumLabel: momentumLabel, // 운동량 표시 요소 추가
+    label: label,
   };
 
   arrows.push(arrow);
@@ -317,13 +331,9 @@ function openInput(data) {
     data.doneBtn.remove();
     data.doneBtn = null;
 
-    let lbl = data.element.querySelector('.label-text');
-    if (!lbl) {
-      lbl = document.createElement('div');
-      lbl.className = 'label-text';
-      data.element.appendChild(lbl);
-    }
-    lbl.textContent = `${m} kg`;
+    data.mass = m;
+data.velocity = v;
+data.label.textContent = `${m} kg`;
 
     data.arrow.style.display = 'block';
   };
@@ -415,6 +425,7 @@ function move() {
   }
 
   // 3. 운동량 계산 및 표시
+  
   objects.forEach(obj => {
     const massNum = parseFloat(obj.mass) || 0;
     const velocityNum = parseFloat(obj.velocity) || 0;

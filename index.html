@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test34</title>
+  <title>test35</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn {
@@ -111,85 +111,121 @@
     }
 
     function getBoxY() {
-      const ground=120, boxH=60, offset=-2;
+      const ground = 120, boxH = 60, offset = -2;
       return window.innerHeight - ground - boxH + offset;
     }
 
-    function showAlert() {
-      alertBox.textContent = '질량과 속도를 입력해 주세요';
-      alertBox.style.display='block';
-      alertBox.style.animation='dropDown 0.5s forwards';
-      setTimeout(()=> alertBox.style.animation='fadeOut 0.5s forwards',2500);
-      alertBox.addEventListener('animationend',()=>{
-        if(alertBox.style.opacity==='0'){
-          alertBox.style.display='none'; alertBox.style.animation='';
+    function showAlert(msg) {
+      alertBox.textContent = msg || '질량과 속도를 입력해 주세요';
+      alertBox.style.display = 'block';
+      alertBox.style.animation = 'dropDown 0.5s forwards';
+      setTimeout(() => alertBox.style.animation = 'fadeOut 0.5s forwards', 2500);
+      alertBox.addEventListener('animationend', () => {
+        if (alertBox.style.opacity === '0') {
+          alertBox.style.display = 'none';
+          alertBox.style.animation = '';
         }
-      },{once:true});
+      }, { once: true });
     }
 
     function handleClickOnce(e) {
       if (!delayPassed) return;
       const box = document.createElement('div');
       box.className = 'object';
-      const x=e.clientX-30, y=getBoxY();
-      box.style.left=x+'px'; box.style.top=y+'px';
-      objectData.set(box,{mass:'',velocity:'',dir:'→'});
-      const doneBtn=document.createElement('button');
-      doneBtn.className='done-btn'; doneBtn.textContent='완료';
-      function updBtn(){ doneBtn.style.left=x+'px'; doneBtn.style.top=(y-30)+'px'; }
+      const x = e.clientX - 30, y = getBoxY();
+      box.style.left = x + 'px'; box.style.top = y + 'px';
+      objectData.set(box, { mass:'', velocity:'', dir:'→' });
+
+      // 완료 버튼
+      const doneBtn = document.createElement('button');
+      doneBtn.className = 'done-btn'; doneBtn.textContent = '완료';
+      function updBtn(){ doneBtn.style.left = x + 'px'; doneBtn.style.top = (y - 30) + 'px'; }
       updBtn(); simulator.appendChild(doneBtn);
+
+      // 입력창 생성
       function makeInputs(m,v){
-        const cont=document.createElement('div'); cont.className='input-container';
+        const cont = document.createElement('div');
+        cont.className = 'input-container';
         [['질량','kg',m],['속도','m/s',v]].forEach(([ph,unit,val])=>{
-          const row=document.createElement('div'); row.className='input-with-unit';
-          const inp=document.createElement('input'); inp.type='number'; inp.placeholder=ph; inp.value=val;
-          const span=document.createElement('span'); span.textContent=unit;
+          const row = document.createElement('div');
+          row.className = 'input-with-unit';
+          const inp = document.createElement('input');
+          inp.type = 'number'; inp.placeholder = ph; inp.value = val;
+          const span = document.createElement('span');
+          span.textContent = unit;
           row.append(inp,span); cont.appendChild(row);
         });
-        return {cont, massInput:cont.children[0].querySelector('input'), velInput:cont.children[1].querySelector('input')};
+        return {
+          cont,
+          massInput: cont.children[0].querySelector('input'),
+          velInput: cont.children[1].querySelector('input')
+        };
       }
-      let {cont:ic,massInput,velInput}=makeInputs('','');
+      let { cont: ic, massInput, velInput } = makeInputs('','');
       box.append(ic);
+
+      // 화살표 생성
       const arrow = document.createElement('div');
-      arrow.className='arrow'; arrow.textContent='→'; simulator.append(arrow);
+      arrow.className = 'arrow'; arrow.textContent = '→';
+      simulator.appendChild(arrow);
 
       function updateArrow(){
-        const gap=-5, boxW=60, rect=arrow.getBoundingClientRect();
-        if(arrow.textContent==='→') {
-          arrow.style.left=(x+boxW+gap)+'px';
+        const gap = -5;
+        const boxW = 60;
+        const rect = arrow.getBoundingClientRect();
+        if (arrow.textContent === '→') {
+          arrow.style.left = (x + boxW + gap) + 'px';
         } else {
-          arrow.style.left=(x-rect.width-gap)+'px';
+          arrow.style.left = (x - rect.width - gap) + 'px';
         }
-        arrow.style.top=(y+(boxW-rect.height)/2)+'px';
+        arrow.style.top = (y + (boxW - rect.height) / 2) + 'px';
       }
       updateArrow();
 
-      arrow.addEventListener('click',ev=>{
+      arrow.addEventListener('click', ev => {
         ev.stopPropagation();
-        arrow.textContent = arrow.textContent==='→'?'←':'→';
+        arrow.textContent = arrow.textContent === '→' ? '←' : '→';
         updateArrow();
       });
 
-      doneBtn.addEventListener('click',()=>{
-        const m=massInput.value.trim(), v=velInput.value.trim();
-        if(!m&& !v){ showAlert(); return; }
-        objectData.set(box,{mass:m,velocity:v,dir:arrow.textContent});
+      // 완료 처리
+      doneBtn.addEventListener('click', () => {
+        const m = massInput.value.trim();
+        const v = velInput.value.trim();
+
+        if (m === '') { showAlert('질량을 입력해 주세요'); return; }
+        if (v === '') { showAlert('속도를 입력해 주세요'); return; }
+
+        objectData.set(box, { mass: m, velocity: v, dir: arrow.textContent });
         ic.remove(); doneBtn.remove();
-        let lbl=box.querySelector('.label-text');
-        if(!lbl){ lbl=document.createElement('div'); lbl.className='label-text'; box.append(lbl);}
-        lbl.textContent = m?`${m} kg`:'';
+
+        let lbl = box.querySelector('.label-text');
+        if (!lbl) {
+          lbl = document.createElement('div');
+          lbl.className = 'label-text';
+          box.append(lbl);
+        }
+        lbl.textContent = `${m} kg`;
+
+        arrow.style.display = 'block';
       });
 
-      box.addEventListener('click',ev=>{
+      // 재편집
+      box.addEventListener('click', ev => {
         ev.stopPropagation();
-        if(box.querySelector('.input-container')) return;
-        const saved=objectData.get(box);
-        let {cont:newIc,massInput:newM,velInput:newV}=makeInputs(saved.mass,saved.velocity);
-        box.append(newIc); simulator.append(doneBtn);
-        updateArrow(); arrow.style.display='none'; newM.focus();
+        if (box.querySelector('.input-container')) return;
+
+        const saved = objectData.get(box);
+        let { cont: newIc, massInput: newM, velInput: newV } = makeInputs(saved.mass, saved.velocity);
+        box.append(newIc);
+        simulator.append(doneBtn);
+        updateArrow();
+        // 화살표는 편집 중에도 유지됩니다
+        newM.focus();
       });
 
-      simulator.append(box); stopTracking();
+      simulator.append(box);
+      stopTracking();
     }
   </script>
 </body>

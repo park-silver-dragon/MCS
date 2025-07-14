@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test37</title>
+  <title>test38</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn {
@@ -126,13 +126,15 @@
 
     function handleClickOnce(e) {
       if (!delayPassed) return;
+      stopTracking(); // 버그 2 수정: 클릭 후 소환 모드 해제
+
       const box = document.createElement('div');
       box.className = 'object';
       const x = e.clientX - 30, y = getBoxY();
       box.style.left = x + 'px'; box.style.top = y + 'px';
-      objectData.set(box, { mass:'', velocity:'', dir:'→' });
-
       simulator.append(box);
+
+      objectData.set(box, { mass: '', velocity: '', dir: '→' });
 
       function createDoneBtn() {
         const btn = document.createElement('button');
@@ -144,13 +146,11 @@
         return btn;
       }
 
-      let doneBtn = createDoneBtn();
-
       function makeInputs(m, v) {
         const cont = document.createElement('div'); cont.className = 'input-container';
         [['질량','kg',m],['속도','m/s',v]].forEach(([ph, unit, val]) => {
           const row = document.createElement('div'); row.className = 'input-with-unit';
-          const inp = document.createElement('input'); inp.type = 'number'; inp.placeholder = ph; inp.value = val;
+          const inp = document.createElement('input'); inp.type = 'number'; inp.placeholder = ph; inp.value = val || '';
           const span = document.createElement('span'); span.textContent = unit;
           row.append(inp, span); cont.appendChild(row);
         });
@@ -161,8 +161,9 @@
         };
       }
 
-      let { cont: ic, massInput, velInput } = makeInputs('', '');
+      const { cont: ic, massInput, velInput } = makeInputs('', '');
       box.append(ic);
+      let doneBtn = createDoneBtn();
 
       const arrow = document.createElement('div'); arrow.className = 'arrow'; arrow.textContent = '→';
       simulator.append(arrow);
@@ -182,32 +183,35 @@
         updateArrow();
       });
 
-      function attachDoneHandler(btnRef, icRef) {
-        btnRef.onclick = () => {
-          const m = massInput.value.trim();
-          const v = velInput.value.trim();
+      function attachDoneHandler(doneRef, massRef, velRef, icRef) {
+        doneRef.onclick = () => {
+          const m = massRef.value.trim();
+          const v = velRef.value.trim();
           if (m === '') { showAlert('질량을 입력해 주세요'); return; }
           if (v === '') { showAlert('속도를 입력해 주세요'); return; }
           objectData.set(box, { mass: m, velocity: v, dir: arrow.textContent });
-          icRef.remove(); btnRef.remove();
+          icRef.remove(); doneRef.remove();
           let lbl = box.querySelector('.label-text');
-          if (!lbl) { lbl = document.createElement('div'); lbl.className = 'label-text'; box.append(lbl); }
+          if (!lbl) {
+            lbl = document.createElement('div'); lbl.className = 'label-text'; box.append(lbl);
+          }
           lbl.textContent = `${m} kg`;
           arrow.style.display = 'block';
         };
       }
 
-      attachDoneHandler(doneBtn, ic);
+      attachDoneHandler(doneBtn, massInput, velInput, ic);
 
       box.addEventListener('click', ev => {
         ev.stopPropagation();
         if (box.querySelector('.input-container')) return;
         const saved = objectData.get(box);
-        let { cont: newIc, massInput: newM, velInput: newV } = makeInputs(saved.mass, saved.velocity);
+        const { cont: newIc, massInput: newM, velInput: newV } = makeInputs(saved.mass, saved.velocity);
         box.append(newIc);
         doneBtn = createDoneBtn();
-        attachDoneHandler(doneBtn, newIc);
+        attachDoneHandler(doneBtn, newM, newV, newIc);
         updateArrow();
+        arrow.textContent = saved.dir || '→';
         arrow.style.display = 'block';
         newM.focus();
       });

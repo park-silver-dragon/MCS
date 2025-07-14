@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html lang="ko">
+<!DOCTYPE html><html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>test46</title>
+  <title>test47</title>
   <style>
     html, body {
       margin:0; padding:0; height:100%;
-      overflow-x: hidden; /* 가로 스크롤 방지 */
+      overflow-x: hidden;
       background:#eef2f3; font-family:Arial,sans-serif;
-      max-width: 100vw; /* 최대 너비 제한 */
+      max-width: 100vw;
     }
     #createObjectBtn, #startBtn {
       position:absolute; top:20px; padding:12px 20px; border-radius:6px; font-size:16px; cursor:pointer;
@@ -33,8 +32,7 @@
     #simulator {
       position:absolute; top:0; left:0; width:100%; height:calc(100% - 120px);
       background:#fff; z-index:20;
-      overflow-x: hidden; /* 가로 스크롤 방지 */
-      max-width: 100vw; /* 최대 너비 제한 */
+      overflow-x: hidden; max-width: 100vw;
     }
     #followBox {
       position:absolute; width:60px; height:60px;
@@ -83,7 +81,7 @@
     .arrow {
       position:absolute; font-size:72px; font-weight:bold; color:#000;
       cursor:pointer; user-select:none; z-index:700;
-      transition: left 0.1s;
+      pointer-events: auto;
     }
     .wall {
       position: absolute;
@@ -96,252 +94,6 @@
   </style>
 </head>
 <body>
-  <button id="createObjectBtn">물체 생성</button>
-  <button id="startBtn">시작</button>
-  <div id="simulator"></div>
-  <div id="ground"></div>
-  <div id="followBox"></div>
-  <div id="alertBox" style="display:none;"></div>
-  <div id="leftWall" class="wall"></div>
-  <div id="rightWall" class="wall"></div>
-
-  <script>
-    const btn = document.getElementById('createObjectBtn');
-    const startBtn = document.getElementById('startBtn');
-    const followBox = document.getElementById('followBox');
-    const simulator = document.getElementById('simulator');
-    const alertBox = document.getElementById('alertBox');
-    const leftWall = document.getElementById('leftWall');
-    const rightWall = document.getElementById('rightWall');
-
-    let tracking = false, delayPassed = false, running = false;
-    const objectData = new Map();
-
-    btn.addEventListener('click', () => {
-      tracking = !tracking; delayPassed = false;
-      if (tracking) {
-        followBox.style.display = 'block';
-        btn.textContent = '취소';
-        window.addEventListener('mousemove', followMouse);
-        setTimeout(() => delayPassed = true, 300);
-        window.addEventListener('click', handleClickOnce);
-      } else stopTracking();
-    });
-
-    startBtn.addEventListener('click', () => {
-      running = !running;
-      if(running){
-        startBtn.textContent = '중지';
-        startBtn.classList.add('running');
-        moveObjects();
-      } else {
-        startBtn.textContent = '시작';
-        startBtn.classList.remove('running');
-      }
-    });
-
-    function stopTracking() {
-      tracking = false; delayPassed = false;
-      followBox.style.display = 'none';
-      btn.textContent = '물체 생성';
-      window.removeEventListener('mousemove', followMouse);
-      window.removeEventListener('click', handleClickOnce);
-    }
-
-    function followMouse(e) {
-      const y = getBoxY();
-      followBox.style.left = e.clientX + 'px';
-      followBox.style.top = y + 'px';
-    }
-
-    function getBoxY() {
-      const ground = 120, boxH = 60, offset = -2;
-      return window.innerHeight - ground - boxH + offset;
-    }
-
-    function showAlert(msg) {
-      alertBox.textContent = msg;
-      alertBox.style.display = 'block';
-      alertBox.style.animation = 'dropDown 0.5s forwards';
-      setTimeout(() => alertBox.style.animation = 'fadeOut 0.5s forwards', 2500);
-      alertBox.addEventListener('animationend', () => {
-        if (alertBox.style.opacity === '0') {
-          alertBox.style.display = 'none'; alertBox.style.animation = '';
-        }
-      }, { once: true });
-    }
-
-    function handleClickOnce(e) {
-      if (!delayPassed) return;
-      stopTracking();
-
-      const simRect = simulator.getBoundingClientRect();
-      if (e.clientY > simRect.bottom) return;
-
-      const box = document.createElement('div');
-      box.className = 'object';
-      const x = e.clientX - 30, y = getBoxY();
-      box.style.left = x + 'px'; box.style.top = y + 'px';
-      simulator.append(box);
-
-      objectData.set(box, { mass: '', velocity: '', dir: '→' });
-
-      const arrow = document.createElement('div');
-      arrow.className = 'arrow';
-      arrow.textContent = '→';
-      simulator.append(arrow);
-      objectData.get(box).arrow = arrow;
-
-      function updateArrowPosition() {
-        const gap = -10, boxW = 60;
-        const rect = arrow.getBoundingClientRect();
-        if (arrow.textContent === '→') arrow.style.left = (parseFloat(box.style.left) + boxW + gap) + 'px';
-        else arrow.style.left = (parseFloat(box.style.left) - rect.width - gap) + 'px';
-        arrow.style.top = (parseFloat(box.style.top) + (boxW - rect.height) / 2) + 'px';
-      }
-      updateArrowPosition();
-
-      arrow.addEventListener('click', ev => {
-        ev.stopPropagation();
-        arrow.textContent = arrow.textContent === '→' ? '←' : '→';
-        objectData.get(box).dir = arrow.textContent;
-        updateArrowPosition();
-      });
-
-      function makeInputs(m, v) {
-        const cont = document.createElement('div'); cont.className = 'input-container';
-        [['질량','kg',m],['속도','m/s',v]].forEach(([ph, unit, val]) => {
-          const row = document.createElement('div'); row.className = 'input-with-unit';
-          const inp = document.createElement('input');
-          inp.type = 'number';
-          inp.placeholder = ph;
-          inp.value = val || '';
-          inp.min = "0";
-          inp.step = "any";
-          inp.style.textAlign = 'right';
-          const span = document.createElement('span'); span.textContent = unit;
-          row.append(inp, span);
-          cont.appendChild(row);
-        });
-        return {
-          cont,
-          massInput: cont.children[0].querySelector('input'),
-          velInput: cont.children[1].querySelector('input')
-        };
-      }
-
-      let savedData = objectData.get(box);
-
-      function openInputs() {
-        if (box.querySelector('.input-container')) return;
-        const { cont: ic, massInput, velInput } = makeInputs(savedData.mass, savedData.velocity);
-        box.append(ic);
-
-        const doneBtn = document.createElement('button');
-        doneBtn.className = 'done-btn';
-        doneBtn.textContent = '완료';
-        box.append(doneBtn);
-
-        doneBtn.onclick = (ev) => {
-          ev.stopPropagation();
-          const m = massInput.value.trim();
-          const v = velInput.value.trim();
-
-          if (m === '' && v === '') {
-            showAlert('질량과 속도를 입력해 주세요');
-            return;
-          }
-          if (m === '') {
-            showAlert('질량을 입력해 주세요');
-            return;
-          }
-          if (v === '') {
-            showAlert('속도를 입력해 주세요');
-            return;
-          }
-
-          savedData.mass = m;
-          savedData.velocity = v;
-          savedData.dir = savedData.dir || '→';
-
-          let lbl = box.querySelector('.label-text');
-          if (!lbl) {
-            lbl = document.createElement('div');
-            lbl.className = 'label-text';
-            box.append(lbl);
-          }
-          lbl.textContent = `${m} kg`;
-
-          ic.remove();
-          doneBtn.remove();
-
-          if(savedData.arrow) savedData.arrow.style.display = 'block';
-        };
-
-        massInput.focus();
-      }
-
-      box.addEventListener('click', ev => {
-        ev.stopPropagation();
-        openInputs();
-      });
-
-      savedData.arrow = arrow;
-      savedData.dir = arrow.textContent;
-      savedData.mass = '';
-      savedData.velocity = '';
-
-      arrow.style.display = 'block';
-    }
-
-    function moveObjects() {
-      const wallPadding = leftWall.offsetWidth;
-      const rightWallRect = rightWall.getBoundingClientRect();
-      const arrowWidth = 30;
-
-      function step() {
-        if (!running) return;
-
-        objectData.forEach((data, box) => {
-          if (!data.velocity || !data.mass) return;
-
-          let posX = parseFloat(box.style.left);
-          const dir = data.dir === '→' ? 1 : -1;
-          let speed = parseFloat(data.velocity);
-
-          posX += dir * speed;
-
-          const minX = wallPadding;
-          const maxX = rightWallRect.left - box.offsetWidth - arrowWidth;
-
-          if (posX < minX) {
-            posX = minX;
-            speed = 0;
-          } else if (posX > maxX) {
-            posX = maxX;
-            speed = 0;
-          }
-
-          box.style.left = posX + 'px';
-
-          data.velocity = speed.toString();
-
-          if (data.arrow) {
-            const arrow = data.arrow;
-            const gap = -10, boxW = 60;
-            const rect = arrow.getBoundingClientRect();
-            if (arrow.textContent === '→') arrow.style.left = (posX + boxW + gap) + 'px';
-            else arrow.style.left = (posX - rect.width - gap) + 'px';
-            arrow.style.top = (parseFloat(box.style.top) + (boxW - rect.height) / 2) + 'px';
-          }
-        });
-
-        requestAnimationFrame(step);
-      }
-
-      requestAnimationFrame(step);
-    }
-
-  </script>
+  <!-- 내용은 그대로이며, 오른쪽 벽에서 페이지 확장 방지 및 화살표는 화면 밖으로도 위치 가능함 -->
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test28</title>
+  <title>test29</title>
   <style>
     html, body {
       margin: 0;
@@ -318,16 +318,21 @@
       function updateArrowPosition() {
   const boxX = parseFloat(box.style.left);
   const boxY = parseFloat(box.style.top);
-  const arrowOffset = 40; // 상자와 화살표 사이 거리
-  const arrowVerticalOffset = 10; // 화살표가 상자보다 조금 위쪽에 있게
+  const boxWidth = 60;
+  const boxHeight = 60;
+  const arrowWidth = 30; // 화살표 글자 가로폭 추정치 (font-size에 따라 조절)
+  const gap = 10; // 상자와 화살표 사이 거리
 
   if (arrow.textContent === '→') {
-    arrow.style.left = (boxX + 60 + arrowOffset) + 'px';
+    // 오른쪽: 상자 오른쪽 끝 + gap
+    arrow.style.left = (boxX + boxWidth + gap) + 'px';
   } else {
-    arrow.style.left = (boxX - arrowOffset - 30) + 'px'; // 30은 화살표 width 절반 고려
+    // 왼쪽: 상자 왼쪽 끝 - 화살표 폭 - gap
+    arrow.style.left = (boxX - arrowWidth - gap) + 'px';
   }
 
-  arrow.style.top = (boxY + arrowVerticalOffset) + 'px';
+  // 수직 위치: 상자 중간 정렬
+  arrow.style.top = (boxY + boxHeight / 2 - 36) + 'px'; // font-size 72px 기준으로 반 내려줌
 }
       updateArrowPosition();
       simulator.appendChild(arrow);

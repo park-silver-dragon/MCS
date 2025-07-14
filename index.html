@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title> test6 </title>
+  <title>운동량 보존 시뮬레이터</title>
   <style>
     html, body {
       margin: 0;
@@ -18,9 +18,9 @@
       top: 20px;
       left: 20px;
       padding: 12px 20px;
-      background-color: #e67e22;
+      background-color: #2980b9;
       color: white;
-      border: 3px solid #d35400;
+      border: 3px solid #1f618d;
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
@@ -28,8 +28,8 @@
       z-index: 1000;
     }
     #createObjectBtn:hover {
-      background-color: #d35400;
-      border-color: #b03a2e;
+      background-color: #2471a3;
+      border-color: #154360;
     }
 
     #ground {
@@ -56,7 +56,7 @@
       position: absolute;
       width: 60px;
       height: 60px;
-      background-color: rgba(230, 126, 34, 0.5);
+      background-color: rgba(52, 152, 219, 0.5); /* 반투명 하늘색 */
       pointer-events: none;
       border-radius: 6px;
       display: none;
@@ -68,7 +68,8 @@
       position: absolute;
       width: 60px;
       height: 60px;
-      background-color: #e67e22;
+      background-color: #3498db; /* 불투명 하늘색 */
+      border: 2px solid #2c3e50;  /* 진한 테두리 */
       border-radius: 6px;
       z-index: 800;
     }
@@ -95,20 +96,17 @@
       delayPassed = false;
 
       if (tracking) {
-        // 추적 모드 시작
         followBox.style.display = 'block';
         btn.textContent = '취소';
 
         window.addEventListener('mousemove', followMouse);
 
-        // 300ms 후 클릭 허용
         setTimeout(() => {
           delayPassed = true;
         }, 300);
 
         window.addEventListener('click', handleClickOnce);
       } else {
-        // 추적 모드 해제
         stopTracking();
       }
     });
@@ -125,9 +123,10 @@
     function followMouse(e) {
       const groundHeight = 120;
       const boxHeight = 60;
+      const offsetY = 5; // 바닥보다 살짝 위
 
       followBox.style.left = e.clientX + 'px';
-      followBox.style.top = (window.innerHeight - groundHeight - boxHeight) + 'px';
+      followBox.style.top = (window.innerHeight - groundHeight - boxHeight - offsetY) + 'px';
     }
 
     function handleClickOnce(e) {
@@ -135,19 +134,20 @@
 
       const box = document.createElement('div');
       box.className = 'object';
+
       const groundHeight = 120;
       const boxHeight = 60;
+      const offsetY = 5;
 
-      // 위치 계산
-      const x = e.clientX - 30; // 중심 정렬
-      const y = window.innerHeight - groundHeight - boxHeight;
+      const x = e.clientX - 30;
+      const y = window.innerHeight - groundHeight - boxHeight - offsetY;
 
       box.style.left = x + 'px';
       box.style.top = y + 'px';
 
       simulator.appendChild(box);
 
-      stopTracking(); // 클릭 후 추적 모드 종료
+      stopTracking();
     }
   </script>
 

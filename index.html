@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test67</title>
+  <title>test68</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
@@ -383,6 +383,40 @@ function stopMovement() {
     animationId = null;
   }
 }
+function createParticles(x, y) {
+  const particleCount = 15;
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.style.position = 'absolute';
+    particle.style.width = '6px';
+    particle.style.height = '6px';
+    particle.style.backgroundColor = '#f39c12';
+    particle.style.borderRadius = '50%';
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.pointerEvents = 'none';
+    particle.style.zIndex = 1500;
+
+    simulator.appendChild(particle);
+
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = 30 + Math.random() * 20;
+    const duration = 500 + Math.random() * 300;
+
+    particle.animate([
+      { transform: 'translate(0, 0)', opacity: 1 },
+      { transform: `translate(${Math.cos(angle)*distance}px, ${Math.sin(angle)*distance}px)`, opacity: 0 }
+    ], {
+      duration: duration,
+      easing: 'ease-out',
+      fill: 'forwards'
+    });
+
+    setTimeout(() => {
+      simulator.removeChild(particle);
+    }, duration);
+  }
+}
 
 function move() {
   // 1. 물체 위치 업데이트
@@ -413,6 +447,11 @@ function move() {
       const objB = objects[j];
       if (objA.x < objB.x + boxSize && objA.x + boxSize > objB.x) {
         // 충돌 발생
+
+        // 충돌 후 파티클 효과 생성
+const collisionX = (objA.x + objB.x + boxSize) / 2;
+const collisionY = objA.y + boxSize / 2;
+createParticles(collisionX, collisionY);
 
         const m1 = parseFloat(objA.mass) || 1;
         const m2 = parseFloat(objB.mass) || 1;

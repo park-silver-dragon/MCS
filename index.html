@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test12</title>
+  <title>test13</title>
   <style>
     html, body {
       margin: 0;
@@ -11,6 +11,7 @@
       background-color: #eef2f3;
       overflow: hidden;
       font-family: Arial, sans-serif;
+      position: relative;
     }
 
     #createObjectBtn {
@@ -72,12 +73,15 @@
       font-size: 12px;
       color: white;
       flex-direction: column;
+      cursor: pointer;
+      user-select: none;
     }
 
     .input-container {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      width: 100%;
     }
 
     .input-with-unit {
@@ -114,6 +118,48 @@
       cursor: pointer;
       z-index: 1001;
     }
+
+    /* 경고 박스 스타일 및 애니메이션 */
+    #alertBox {
+      position: fixed;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #e74c3c;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 2000;
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes dropDown {
+      0% {
+        top: -50px;
+        opacity: 0;
+      }
+      50% {
+        top: 20px;
+        opacity: 1;
+      }
+      100% {
+        top: 20px;
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -123,14 +169,19 @@
   <div id="simulator"></div>
   <div id="ground"></div>
   <div id="followBox"></div>
+  <div id="alertBox" style="display:none;"></div>
 
   <script>
     const btn = document.getElementById('createObjectBtn');
     const followBox = document.getElementById('followBox');
     const simulator = document.getElementById('simulator');
+    const alertBox = document.getElementById('alertBox');
 
     let tracking = false;
     let delayPassed = false;
+
+    // 상자 데이터 저장용 (질량, 속도)
+    const objectData = new Map();
 
     btn.addEventListener('click', () => {
       tracking = !tracking;
@@ -164,6 +215,25 @@
       followBox.style.top = (window.innerHeight - groundHeight - boxHeight - offsetY) + 'px';
     }
 
+    function showAlert(message) {
+      alertBox.textContent = message;
+      alertBox.style.display = 'block';
+      alertBox.style.animation = 'dropDown 0.5s forwards';
+
+      // 2.5초 후 페이드아웃
+      setTimeout(() => {
+        alertBox.style.animation = 'fadeOut 0.5s forwards';
+      }, 2500);
+
+      // 완전히 사라진 후 숨김 처리
+      alertBox.addEventListener('animationend', () => {
+        if (alertBox.style.opacity === '0') {
+          alertBox.style.display = 'none';
+          alertBox.style.animation = '';
+        }
+      }, { once: true });
+    }
+
     function handleClickOnce(e) {
       if (!delayPassed) return;
 
@@ -179,6 +249,10 @@
       box.style.left = x + 'px';
       box.style.top = y + 'px';
 
+      // 기본 질량/속도값 없으면 초기값 빈문자열
+      objectData.set(box, { mass: '', velocity: '' });
+
+      // 완료 버튼 생성 (초기에는 hidden, 클릭시 위치 조정)
       const doneBtn = document.createElement('button');
       doneBtn.className = 'done-btn';
       doneBtn.textContent = '완료';
@@ -186,42 +260,85 @@
       doneBtn.style.top = `${y - 30}px`;
       simulator.appendChild(doneBtn);
 
-      const inputContainer = document.createElement('div');
-      inputContainer.className = 'input-container';
+      // 입력창 생성 함수
+      function createInputContainer(massVal = '', velocityVal = '') {
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'input-container';
 
-      const massRow = document.createElement('div');
-      massRow.className = 'input-with-unit';
-      const massInput = document.createElement('input');
-      massInput.type = 'number';
-      massInput.placeholder = '질량';
-      const massUnit = document.createElement('span');
-      massUnit.textContent = 'kg';
-      massRow.appendChild(massInput);
-      massRow.appendChild(massUnit);
+        const massRow = document.createElement('div');
+        massRow.className = 'input-with-unit';
+        const massInput = document.createElement('input');
+        massInput.type = 'number';
+        massInput.placeholder = '질량';
+        massInput.value = massVal;
+        const massUnit = document.createElement('span');
+        massUnit.textContent = 'kg';
+        massRow.appendChild(massInput);
+        massRow.appendChild(massUnit);
 
-      const velRow = document.createElement('div');
-      velRow.className = 'input-with-unit';
-      const velInput = document.createElement('input');
-      velInput.type = 'number';
-      velInput.placeholder = '속도';
-      const velUnit = document.createElement('span');
-      velUnit.textContent = 'm/s';
-      velRow.appendChild(velInput);
-      velRow.appendChild(velUnit);
+        const velRow = document.createElement('div');
+        velRow.className = 'input-with-unit';
+        const velInput = document.createElement('input');
+        velInput.type = 'number';
+        velInput.placeholder = '속도';
+        velInput.value = velocityVal;
+        const velUnit = document.createElement('span');
+        velUnit.textContent = 'm/s';
+        velRow.appendChild(velInput);
+        velRow.appendChild(velUnit);
 
-      inputContainer.appendChild(massRow);
-      inputContainer.appendChild(velRow);
+        inputContainer.appendChild(massRow);
+        inputContainer.appendChild(velRow);
+
+        return { inputContainer, massInput, velInput };
+      }
+
+      // 처음 입력창 표시
+      let { inputContainer, massInput, velInput } = createInputContainer('', '');
       box.appendChild(inputContainer);
 
       doneBtn.addEventListener('click', () => {
-        const mass = massInput.value;
-        if (!mass || isNaN(mass)) {
-          alert('질량을 입력해주세요.');
+        const mass = massInput.value.trim();
+        const velocity = velInput.value.trim();
+
+        if (mass === '' && velocity === '') {
+          showAlert('질량 또는 속도 중 적어도 하나를 입력해야 합니다.');
           return;
         }
 
+        if (mass === '') {
+          showAlert('질량을 입력해주세요.');
+          return;
+        }
+
+        if (velocity === '') {
+          showAlert('속도를 입력해주세요.');
+          return;
+        }
+
+        // 데이터 저장
+        objectData.set(box, { mass, velocity });
+
+        // 입력창, 버튼 제거
+        inputContainer.remove();
         doneBtn.remove();
+
+        // 질량만 있을 때는 질량만 표시, 둘 다 있으면 질량 표시
         box.innerHTML = `${mass} kg`;
+      });
+
+      // 상자 클릭시 다시 입력창과 완료 버튼 보여주기 + 기존값 불러오기
+      box.addEventListener('click', (event) => {
+        event.stopPropagation();
+
+        // 이미 입력창이 열려있으면 무시
+        if (box.querySelector('.input-container')) return;
+
+        const savedData = objectData.get(box) || { mass: '', velocity: '' };
+        let { inputContainer, massInput, velInput } = createInputContainer(savedData.mass, savedData.velocity);
+        box.appendChild(inputContainer);
+
+        simulator.appendChild(doneBtn); // 완료 버튼 다시 추가
       });
 
       simulator.appendChild(box);

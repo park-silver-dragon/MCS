@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test10</title>
+  <title>test11</title>
   <style>
     html, body {
       margin: 0;
@@ -28,11 +28,6 @@
       z-index: 1000;
     }
 
-    #createObjectBtn:hover {
-      background-color: #d35400;
-      border-color: #b03a2e;
-    }
-
     #ground {
       position: absolute;
       bottom: 0;
@@ -41,7 +36,6 @@
       height: 120px;
       background: linear-gradient(90deg, #7f8c8d, #bdc3c7);
       border-top: 3px solid #2c3e50;
-      box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.2);
     }
 
     #simulator {
@@ -73,49 +67,53 @@
       border-radius: 6px;
       z-index: 800;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-size: 12px;
       color: white;
+      flex-direction: column;
     }
 
     .input-container {
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 4px;
     }
 
-    .input-row {
-      display: flex;
-      align-items: center;
+    .input-with-unit {
+      position: relative;
     }
 
-    .unit-label {
+    .input-with-unit input {
+      width: 100%;
       font-size: 12px;
-      margin-right: 2px;
-      color: #2c3e50;
-      width: 20px;
-      text-align: right;
+      padding-right: 28px;
+      box-sizing: border-box;
     }
 
-    .object input[type="number"] {
-      width: 36px;
-      font-size: 12px;
-      padding: 2px;
+    .input-with-unit span {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 10px;
+      color: #555;
+      pointer-events: none;
     }
 
     .done-btn {
-      margin-top: 4px;
-      width: 100%;
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
       font-size: 12px;
-      padding: 2px 4px;
+      padding: 2px 8px;
       border: 1px solid #1e8449;
       background-color: #27ae60;
       color: white;
       border-radius: 4px;
       cursor: pointer;
+      z-index: 1001;
     }
   </style>
 </head>
@@ -182,57 +180,65 @@
       box.style.left = x + 'px';
       box.style.top = y + 'px';
 
-      // 클릭 시 입력창 표시
       box.addEventListener('click', (event) => {
         event.stopPropagation();
 
+        // 이미 열려있으면 무시
         if (box.querySelector('.input-container')) return;
 
+        // 입력 UI 생성
         const inputContainer = document.createElement('div');
         inputContainer.className = 'input-container';
 
-        const row1 = document.createElement('div');
-        row1.className = 'input-row';
-        const label1 = document.createElement('span');
-        label1.className = 'unit-label';
-        label1.textContent = 'kg';
-        const input1 = document.createElement('input');
-        input1.type = 'number';
-        input1.placeholder = '질량';
-        row1.appendChild(label1);
-        row1.appendChild(input1);
+        // 질량 입력
+        const massRow = document.createElement('div');
+        massRow.className = 'input-with-unit';
+        const massInput = document.createElement('input');
+        massInput.type = 'number';
+        massInput.placeholder = '질량';
+        const massUnit = document.createElement('span');
+        massUnit.textContent = 'kg';
+        massRow.appendChild(massInput);
+        massRow.appendChild(massUnit);
 
-        const row2 = document.createElement('div');
-        row2.className = 'input-row';
-        const label2 = document.createElement('span');
-        label2.className = 'unit-label';
-        label2.textContent = 'm/s';
-        const input2 = document.createElement('input');
-        input2.type = 'number';
-        input2.placeholder = '속도';
-        row2.appendChild(label2);
-        row2.appendChild(input2);
+        // 속도 입력
+        const velRow = document.createElement('div');
+        velRow.className = 'input-with-unit';
+        const velInput = document.createElement('input');
+        velInput.type = 'number';
+        velInput.placeholder = '속도';
+        const velUnit = document.createElement('span');
+        velUnit.textContent = 'm/s';
+        velRow.appendChild(velInput);
+        velRow.appendChild(velUnit);
 
-        inputContainer.appendChild(row1);
-        inputContainer.appendChild(row2);
+        inputContainer.appendChild(massRow);
+        inputContainer.appendChild(velRow);
+        box.appendChild(inputContainer);
 
+        // 완료 버튼
         const doneBtn = document.createElement('button');
         doneBtn.className = 'done-btn';
         doneBtn.textContent = '완료';
 
-        doneBtn.onclick = () => {
-          const mass = input1.value;
-          const velocity = input2.value;
+        doneBtn.addEventListener('click', () => {
+          const mass = massInput.value;
+          const velocity = velInput.value;
 
-          if (mass === '') return alert('질량을 입력해주세요');
-          // 필요한 경우 속도도 검사 가능
+          if (!mass || isNaN(mass)) {
+            alert('질량을 입력해주세요.');
+            return;
+          }
 
+          // 입력창과 버튼 제거
+          inputContainer.remove();
+          doneBtn.remove();
+
+          // 질량 표시
           box.textContent = `${mass} kg`;
-        };
+        });
 
-        inputContainer.appendChild(doneBtn);
-        box.innerHTML = ''; // 기존 내용 제거
-        box.appendChild(inputContainer);
+        box.appendChild(doneBtn);
       });
 
       simulator.appendChild(box);

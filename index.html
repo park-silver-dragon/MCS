@@ -2,89 +2,82 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test54</title>
+  <title>55</title>
   <style>
-    html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
+    html, body {
+      margin: 0; padding: 0; height: 100%; overflow: hidden;
+      background: #eef2f3; font-family: Arial, sans-serif;
+    }
     #createObjectBtn, #startStopBtn {
-      position:absolute; top:20px; padding:12px 20px; border-radius:6px;
-      font-size:16px; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.3);
-      z-index:1000;
-      border:3px solid transparent;
+      padding: 12px 20px; font-size: 16px; cursor: pointer;
+      border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      position: absolute; top: 20px; z-index: 1000;
     }
     #createObjectBtn {
-      left:20px;
-      background:#e67e22; color:#fff;
-      border-color:#d35400;
+      left: 20px; background: #e67e22; color: #fff;
+      border: 3px solid #d35400;
     }
     #startStopBtn {
-      left:140px;
-      background:#27ae60; color:#fff;
-      border-color:#1e8449;
+      left: 150px; background: #27ae60; color: #fff;
+      border: 3px solid #1e8449;
     }
     #startStopBtn.stopped {
-      background:#c0392b;
-      border-color:#922b21;
+      background: #c0392b; border-color: #922b21;
     }
     #ground {
-      position:absolute; bottom:0; left:0;
-      width:100%; height:120px;
-      background:linear-gradient(90deg,#7f8c8d,#bdc3c7);
-      border-top:3px solid #2c3e50; z-index:10;
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 120px;
+      background: linear-gradient(90deg,#7f8c8d,#bdc3c7);
+      border-top: 3px solid #2c3e50; z-index: 10;
     }
     #simulator {
-      position:absolute; top:0; left:0;
-      width:100%; height:calc(100% - 120px);
-      background:#fff; z-index:20;
-      overflow-x: hidden;
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: calc(100% - 120px);
+      background: #fff; z-index: 20;
     }
     #followBox {
-      position:absolute; width:60px; height:60px;
-      background:rgba(52,152,219,0.5); border-radius:6px;
-      display:none; z-index:900; transform:translate(-50%,0);
+      position: absolute; width: 60px; height: 60px;
+      background: rgba(52,152,219,0.5); border-radius: 6px;
+      display: none; z-index: 900; transform: translate(-50%, 0);
     }
     .object {
-      position:absolute; width:60px; height:60px;
-      background:#3498db; border:2px solid #2c3e50; border-radius:6px;
-      display:flex; align-items:center; justify-content:center;
-      flex-direction:column; cursor:pointer; user-select:none;
-      z-index:800; color:#fff; font-size:12px;
+      position: absolute; width: 60px; height: 60px;
+      background: #3498db; border: 2px solid #2c3e50; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; cursor: pointer; user-select: none;
+      z-index: 800; color: #fff; font-size: 12px;
     }
-    .label-text { font-size:14px; color:#fff; pointer-events:none; user-select:none; }
-    .input-container { display:flex; flex-direction:column; gap:4px; width:100%; }
-    .input-with-unit { position:relative; width:100%; }
+    .label-text { font-size: 14px; color: #fff; pointer-events: none; user-select: none; }
+    .input-container { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+    .input-with-unit { position: relative; width: 100%; }
     .input-with-unit input {
-      width:100%; font-size:12px; padding-right:28px; box-sizing:border-box;
+      width: 100%; font-size: 12px; padding-right: 28px; box-sizing: border-box;
     }
     .input-with-unit span {
-      position:absolute; right:4px; top:50%; transform:translateY(-50%);
-      font-size:10px; color:#555; pointer-events:none;
+      position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+      font-size: 10px; color: #555; pointer-events: none;
     }
     .done-btn {
-      position:absolute; width:60px; font-size:12px; padding:3px 0;
-      border:1px solid #1e8449; background:#27ae60; color:#fff;
-      border-radius:4px; cursor:pointer; z-index:1001;
-      top: -30px;
-      left: 0;
-      text-align: center;
+      position: absolute; width: 60px; font-size: 12px; padding: 3px 0;
+      border: 1px solid #1e8449; background: #27ae60; color: #fff;
+      border-radius: 4px; cursor: pointer; z-index: 1001;
     }
     #alertBox {
-      position:fixed; top:-50px; left:50%; transform:translateX(-50%);
-      background:rgba(231,76,60,0.6); color:#fff;
-      padding:12px 24px; border-radius:6px; font-weight:bold;
-      box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:2000;
-      opacity:0.85; animation-fill-mode:forwards;
+      position: fixed; top: -50px; left: 50%; transform: translateX(-50%);
+      background: rgba(231,76,60,0.85); color: #fff;
+      padding: 12px 24px; border-radius: 6px; font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 2000;
+      opacity: 0.85; animation-fill-mode: forwards;
     }
     @keyframes dropDown {
-      0% { top:-50px; opacity:0 }
-      50%,100% { top:20px; opacity:1 }
+      0% { top: -50px; opacity: 0 }
+      50%, 100% { top: 20px; opacity: 1 }
     }
     @keyframes fadeOut {
-      from { opacity:1 } to { opacity:0 }
+      from { opacity: 1 } to { opacity: 0 }
     }
     .arrow {
-      position:absolute; font-size:72px; font-weight:bold; color:#000;
-      cursor:pointer; user-select:none; z-index:700;
-      user-select:none;
+      position: absolute; font-size: 72px; font-weight: bold;
+      color: #000; cursor: pointer; user-select: none; z-index: 700;
     }
   </style>
 </head>
@@ -98,19 +91,13 @@
 
   <script>
     const btn = document.getElementById('createObjectBtn');
-    const startStopBtn = document.getElementById('startStopBtn');
+    const startBtn = document.getElementById('startStopBtn');
     const followBox = document.getElementById('followBox');
     const simulator = document.getElementById('simulator');
     const alertBox = document.getElementById('alertBox');
-    let tracking = false, delayPassed = false, running = false;
+    let tracking = false, delayPassed = false, moving = false;
     const objects = [];
-    const boxSize = 60;
-    const groundHeight = 120;
 
-    btn.style.zIndex = 1000;
-    startStopBtn.style.zIndex = 1000;
-
-    // 물체 생성 버튼 이벤트
     btn.addEventListener('click', () => {
       tracking = !tracking;
       delayPassed = false;
@@ -120,14 +107,17 @@
         window.addEventListener('mousemove', followMouse);
         setTimeout(() => delayPassed = true, 300);
         window.addEventListener('click', handleClickOnce);
-      } else {
-        stopTracking();
-      }
+      } else stopTracking();
+    });
+
+    startBtn.addEventListener('click', () => {
+      moving = !moving;
+      startBtn.textContent = moving ? '중지' : '시작';
+      startBtn.classList.toggle('stopped', moving);
     });
 
     function stopTracking() {
-      tracking = false;
-      delayPassed = false;
+      tracking = false; delayPassed = false;
       followBox.style.display = 'none';
       btn.textContent = '물체 생성';
       window.removeEventListener('mousemove', followMouse);
@@ -141,8 +131,8 @@
     }
 
     function getBoxY() {
-      const offset = -2; // 바닥보다 살짝 올림
-      return window.innerHeight - groundHeight - boxSize + offset;
+      const ground = 120, boxH = 60, offset = -2;
+      return window.innerHeight - ground - boxH + offset;
     }
 
     function showAlert(msg) {
@@ -152,297 +142,128 @@
       setTimeout(() => alertBox.style.animation = 'fadeOut 0.5s forwards', 2500);
       alertBox.addEventListener('animationend', () => {
         if (alertBox.style.opacity === '0') {
-          alertBox.style.display = 'none';
-          alertBox.style.animation = '';
+          alertBox.style.display = 'none'; alertBox.style.animation = '';
         }
       }, { once: true });
     }
 
     function handleClickOnce(e) {
       if (!delayPassed) return;
-      if (e.target === btn || e.target === startStopBtn) return; // 버튼 위 클릭 제외
-      const x = e.clientX - boxSize / 2;
-      const y = getBoxY();
-
-      // 새 물체 요소 생성
       const box = document.createElement('div');
       box.className = 'object';
-      box.style.left = x + 'px';
-      box.style.top = y + 'px';
-      simulator.appendChild(box);
+      const x = e.clientX - 30, y = getBoxY();
+      box.style.left = x + 'px'; box.style.top = y + 'px';
+      simulator.append(box);
 
-      // 화살표 생성
       const arrow = document.createElement('div');
       arrow.className = 'arrow';
       arrow.textContent = '→';
       simulator.appendChild(arrow);
 
-      // 초기 데이터
-      const data = {
-        box,
-        arrow,
-        mass: null,
-        velocity: null,
-        direction: '→',
-        inputContainer: null,
-        doneBtn: null,
-      };
+      const obj = { box, arrow, mass: '', velocity: '', dir: '→', x, y, vx: 0 };
+      objects.push(obj);
+      updateArrow(obj);
+      stopTracking();
 
-      // 위치 저장
-      data.posX = x;
-
-      // 함수: 입력창 생성
-      function createInputs(mVal = '', vVal = '') {
-        const cont = document.createElement('div');
-        cont.className = 'input-container';
-
-        const massDiv = document.createElement('div');
-        massDiv.className = 'input-with-unit';
-        const massInput = document.createElement('input');
-        massInput.type = 'number';
-        massInput.min = '0';
-        massInput.placeholder = '질량';
-        massInput.value = mVal;
-        massInput.style.textAlign = 'right';
-        const massUnit = document.createElement('span');
-        massUnit.textContent = 'kg';
-        massDiv.appendChild(massInput);
-        massDiv.appendChild(massUnit);
-
-        const velDiv = document.createElement('div');
-        velDiv.className = 'input-with-unit';
-        const velInput = document.createElement('input');
-        velInput.type = 'number';
-        velInput.placeholder = '속도';
-        velInput.value = vVal;
-        velInput.style.textAlign = 'right';
-        const velUnit = document.createElement('span');
-        velUnit.textContent = 'm/s';
-        velDiv.appendChild(velInput);
-        velDiv.appendChild(velUnit);
-
-        cont.appendChild(massDiv);
-        cont.appendChild(velDiv);
-        return { cont, massInput, velInput };
+      function createDoneBtn() {
+        const b = document.createElement('button');
+        b.className = 'done-btn';
+        b.textContent = '완료';
+        b.style.left = x + 'px';
+        b.style.top = (y - 30) + 'px';
+        simulator.appendChild(b);
+        return b;
       }
 
-      // 입력창과 완료 버튼 표시 함수
-      function showInputs() {
-        if (data.inputContainer) return; // 이미 열려있으면 중복방지
-
-        const { cont, massInput, velInput } = createInputs(data.mass || '', data.velocity || '');
-        data.inputContainer = cont;
-        box.appendChild(cont);
-
-        const doneBtn = document.createElement('button');
-        doneBtn.className = 'done-btn';
-        doneBtn.textContent = '완료';
-        doneBtn.style.left = '0px';
-        box.appendChild(doneBtn);
-        data.doneBtn = doneBtn;
-
-        // 완료 버튼 클릭 이벤트
-        doneBtn.onclick = (ev) => {
-          ev.stopPropagation();
-          const m = massInput.value.trim();
-          const v = velInput.value.trim();
-
-          if (m === '' || v === '') {
-            showAlert('질량과 속도를 입력해 주세요');
-            return;
-          }
-          if (Number(m) <= 0) {
-            showAlert('질량은 0보다 커야 합니다');
-            return;
-          }
-
-          data.mass = m;
-          data.velocity = v;
-          // 방향은 그대로 유지
-
-          // 입력창, 완료 버튼 제거
-          if (data.inputContainer) {
-            box.removeChild(data.inputContainer);
-            data.inputContainer = null;
-          }
-          if (data.doneBtn) {
-            box.removeChild(data.doneBtn);
-            data.doneBtn = null;
-          }
-
-          // 질량만 텍스트로 표시
-          let label = box.querySelector('.label-text');
-          if (!label) {
-            label = document.createElement('div');
-            label.className = 'label-text';
-            box.appendChild(label);
-          }
-          label.textContent = `${data.mass} kg`;
-
-          // 방향 표시 유지
-          data.arrow.style.display = 'block';
-          updateArrowPosition(data);
-
-          // 수정 가능하도록 입력창 다시 열 수 있게 함
+      function makeInputs(m, v) {
+        const cont = document.createElement('div'); cont.className = 'input-container';
+        [['질량','kg',m],['속도','m/s',v]].forEach(([ph, unit, val]) => {
+          const row = document.createElement('div'); row.className = 'input-with-unit';
+          const inp = document.createElement('input'); inp.type = 'number'; inp.placeholder = ph; inp.value = val || '';
+          const span = document.createElement('span'); span.textContent = unit;
+          row.append(inp, span); cont.appendChild(row);
+        });
+        return {
+          cont,
+          massInput: cont.children[0].querySelector('input'),
+          velInput: cont.children[1].querySelector('input')
         };
-
-        massInput.focus();
       }
 
-      // 화살표 위치 업데이트 함수
-      function updateArrowPosition(objData) {
-        const gap = -10;
-        const boxLeft = parseFloat(objData.box.style.left);
-        const arrowWidth = objData.arrow.offsetWidth || 50;
-        const arrowHeight = objData.arrow.offsetHeight || 72;
-        const boxTop = parseFloat(objData.box.style.top);
-        if (objData.direction === '→') {
-          objData.arrow.style.left = (boxLeft + boxSize + gap) + 'px';
-        } else {
-          objData.arrow.style.left = (boxLeft - arrowWidth - gap) + 'px';
-        }
-        objData.arrow.style.top = (boxTop + (boxSize - arrowHeight) / 2) + 'px';
-        objData.arrow.style.display = 'block';
-      }
+      let { cont, massInput, velInput } = makeInputs(obj.mass, obj.velocity);
+      box.appendChild(cont);
+      let doneBtn = createDoneBtn();
 
-      // 초기 화살표 위치
-      updateArrowPosition(data);
-
-      // 화살표 클릭시 방향 전환
       arrow.addEventListener('click', ev => {
         ev.stopPropagation();
-        if (data.direction === '→') {
-          data.direction = '←';
-        } else {
-          data.direction = '→';
-        }
-        arrow.textContent = data.direction;
-        updateArrowPosition(data);
+        obj.dir = obj.dir === '→' ? '←' : '→';
+        arrow.textContent = obj.dir;
+        updateArrow(obj);
       });
 
-      // 상자 클릭시 입력창 열기
+      function applyInputs() {
+        const m = massInput.value.trim();
+        const v = velInput.value.trim();
+        if (m === '') { showAlert('질량을 입력해 주세요'); return false; }
+        if (v === '') { showAlert('속도를 입력해 주세요'); return false; }
+        obj.mass = parseFloat(m);
+        obj.velocity = parseFloat(v);
+        obj.vx = (obj.dir === '→' ? 1 : -1) * obj.velocity;
+        const lbl = box.querySelector('.label-text') || document.createElement('div');
+        lbl.className = 'label-text';
+        lbl.textContent = `${m} kg`;
+        if (!box.contains(lbl)) box.appendChild(lbl);
+        cont.remove(); doneBtn.remove();
+        return true;
+      }
+
+      doneBtn.onclick = () => { applyInputs(); };
+
       box.addEventListener('click', ev => {
         ev.stopPropagation();
-        showInputs();
+        if (box.querySelector('.input-container')) return;
+        const inputs = makeInputs(obj.mass, obj.velocity);
+        cont = inputs.cont; massInput = inputs.massInput; velInput = inputs.velInput;
+        box.appendChild(cont);
+        doneBtn = createDoneBtn();
+        doneBtn.onclick = () => { applyInputs(); };
       });
-
-      // 물체 데이터 저장
-      objects.push(data);
-
-      // 추적 중지 및 버튼 텍스트 변경
-      stopTracking();
     }
 
-    // 시작/중지 버튼 이벤트
-    startStopBtn.addEventListener('click', () => {
-      if (!running) {
-        // 시작
-        if (objects.length === 0) {
-          showAlert('생성된 물체가 없습니다');
-          return;
-        }
-        for (const obj of objects) {
-          if (obj.mass === null || obj.velocity === null) {
-            showAlert('모든 물체에 질량과 속도를 입력해 주세요');
-            return;
-          }
-        }
-        running = true;
-        startStopBtn.textContent = '중지';
-        startStopBtn.classList.add('stopped');
-        animate();
-      } else {
-        // 중지
-        running = false;
-        startStopBtn.textContent = '시작';
-        startStopBtn.classList.remove('stopped');
-      }
-    });
+    function updateArrow(obj) {
+      const gap = -10;
+      const arrow = obj.arrow;
+      const box = obj.box;
+      const boxX = parseFloat(box.style.left);
+      const boxY = parseFloat(box.style.top);
+      const boxW = 60;
+      const rect = arrow.getBoundingClientRect();
+      arrow.style.left = obj.dir === '→' ? (boxX + boxW + gap) + 'px' : (boxX - rect.width - gap) + 'px';
+      arrow.style.top = (boxY + (boxW - rect.height) / 2) + 'px';
+    }
 
-    // 애니메이션 및 물체 움직임 함수
     function animate() {
-      if (!running) return;
+      if (moving) {
+        for (let obj of objects) {
+          const box = obj.box;
+          let x = parseFloat(box.style.left);
+          x += obj.vx;
 
-      const simWidth = simulator.clientWidth;
-      const leftWall = 0;
-      const rightWall = simWidth - boxSize;
-
-      // 물체 위치, 속도 업데이트
-      for (let i = 0; i < objects.length; i++) {
-        const data = objects[i];
-        if (data.mass === null || data.velocity === null) continue;
-
-        let posX = parseFloat(data.box.style.left);
-        let vel = parseFloat(data.velocity);
-        let dir = data.direction === '→' ? 1 : -1;
-
-        let nextPos = posX + vel * dir;
-
-        // 벽 충돌 처리
-        if (nextPos < leftWall) {
-          nextPos = leftWall;
-          data.velocity = 0;
-        } else if (nextPos > rightWall) {
-          nextPos = rightWall;
-          data.velocity = 0;
-        }
-
-        data.posX = nextPos;
-      }
-
-      // 물체끼리 충돌 처리 (운동량 보존, 방향과 속도 조정)
-      for (let i = 0; i < objects.length; i++) {
-        const dataA = objects[i];
-        if (dataA.mass === null || dataA.velocity === null) continue;
-
-        for (let j = i + 1; j < objects.length; j++) {
-          const dataB = objects[j];
-          if (dataB.mass === null || dataB.velocity === null) continue;
-
-          const posA = dataA.posX;
-          const posB = dataB.posX;
-
-          if (Math.abs(posA - posB) < boxSize) {
-            // 운동량 보존 탄성 충돌 계산 (1차원)
-            const m1 = Number(dataA.mass);
-            const m2 = Number(dataB.mass);
-
-            let v1 = dataA.velocity * (dataA.direction === '→' ? 1 : -1);
-            let v2 = dataB.velocity * (dataB.direction === '→' ? 1 : -1);
-
-            const newV1 = ((m1 - m2) / (m1 + m2)) * v1 + ((2 * m2) / (m1 + m2)) * v2;
-            const newV2 = ((2 * m1) / (m1 + m2)) * v1 + ((m2 - m1) / (m1 + m2)) * v2;
-
-            // 방향과 절대값 업데이트
-            dataA.velocity = Math.abs(newV1);
-            dataA.direction = newV1 >= 0 ? '→' : '←';
-            dataA.arrow.textContent = dataA.direction;
-
-            dataB.velocity = Math.abs(newV2);
-            dataB.direction = newV2 >= 0 ? '→' : '←';
-            dataB.arrow.textContent = dataB.direction;
-
-            // 위치 겹침 방지
-            if (posA < posB) {
-              dataA.posX = posB - boxSize;
-              dataB.posX = posB;
-            } else {
-              dataA.posX = posB + boxSize;
-              dataB.posX = posB;
-            }
+          if (x <= 10) { x = 10; obj.vx = 0; obj.dir = '→'; obj.arrow.textContent = '→'; }
+          if (x + 60 >= window.innerWidth - 10) {
+            x = window.innerWidth - 70;
+            obj.vx = 0;
+            obj.dir = '←';
+            obj.arrow.textContent = '←';
           }
+
+          box.style.left = x + 'px';
+          updateArrow(obj);
         }
       }
-
-      // 최종 위치 반영
-      for (const data of objects) {
-        if (data.mass === null || data.velocity === null) continue;
-        data.box.style.left = data.posX + 'px';
-        updateArrowPosition(data);
-      }
-
       requestAnimationFrame(animate);
     }
+    requestAnimationFrame(animate);
   </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<title>test1</title>
+<title> test2 </title>
 <style>
   html, body {
     margin: 0; padding: 0; height: 100%;
@@ -16,18 +16,19 @@
     position: absolute;
     top: 20px;
     left: 20px;
-    padding: 10px 16px;
-    background-color: #3498db;
+    padding: 12px 20px;
+    background-color: #e67e22;      /* 더 눈에 띄는 주황색 */
     color: white;
-    border: 2px solid #1f618d; /* 외곽선 추가 */
-    border-radius: 4px;
-    font-size: 14px;
+    border: 3px solid #d35400;       /* 진한 주황 외곽선 */
+    border-radius: 6px;
+    font-size: 16px;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    z-index: 1000;                   /* 최상단에 표시 */
   }
   #createObjectBtn:hover {
-    background-color: #2980b9;
-    border-color: #1a5276;
+    background-color: #d35400;
+    border-color: #b03a2e;
   }
 
   #ground {
@@ -42,7 +43,10 @@
   }
 
   #simulator {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: calc(100% - 120px);
     background-color: #fff;
   }

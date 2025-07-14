@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test42</title>
+  <title>test43</title>
   <style>
     html, body {
       margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif;
@@ -295,7 +295,6 @@
 
     // 움직임 처리
     function moveObjects() {
-      const interval = 20; // ms
       const wallPadding = 10; // 벽 너비
 
       function step() {
@@ -306,7 +305,7 @@
 
           let posX = parseFloat(box.style.left);
           const dir = data.dir === '→' ? 1 : -1;
-          const speed = parseFloat(data.velocity);
+          let speed = parseFloat(data.velocity);
 
           posX += dir * speed;
 
@@ -316,11 +315,16 @@
           // 벽 충돌 시 위치 보정 및 이동 멈춤
           if (posX < minX) {
             posX = minX;
+            speed = 0;          // 벽에 닿으면 속도 0으로
           } else if (posX > maxX) {
             posX = maxX;
+            speed = 0;          // 벽에 닿으면 속도 0으로
           }
 
           box.style.left = posX + 'px';
+
+          // 속도 업데이트
+          data.velocity = speed.toString();
 
           if (data.arrow) {
             const arrow = data.arrow;

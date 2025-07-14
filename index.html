@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test29</title>
+  <title>test30</title>
   <style>
     html, body {
       margin: 0;
@@ -325,14 +325,14 @@
 
   if (arrow.textContent === '→') {
     // 오른쪽: 상자 오른쪽 끝 + gap
-    arrow.style.left = (boxX + boxWidth + gap) + 'px';
+    arrow.style.left = (boxX + boxWidth + gap) - 'px';
   } else {
     // 왼쪽: 상자 왼쪽 끝 - 화살표 폭 - gap
     arrow.style.left = (boxX - arrowWidth - gap) + 'px';
   }
 
   // 수직 위치: 상자 중간 정렬
-  arrow.style.top = (boxY + boxHeight / 2 - 36) + 'px'; // font-size 72px 기준으로 반 내려줌
+  arrow.style.top = (boxY + boxHeight / 2 - 36) + 144; // font-size 72px 기준으로 반 내려줌
 }
       updateArrowPosition();
       simulator.appendChild(arrow);

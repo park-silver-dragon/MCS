@@ -2,22 +2,66 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test84</title>
+  <title>test85</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
-      position:absolute; top:20px; padding:12px 20px; border-radius:6px; width:110px; text-align:center; transition: background-color 0.3s ease;
-      font-size:16px; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.3);
-      z-index:1000;
-      user-select:none;
-    }
+  position: absolute;
+  top: 20px;
+  padding: 12px 20px;
+  width: 110px;
+  font-size: 16px;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: background-color 0.3s ease;
+  z-index: 1000;
+}
+
+/* 🔶 createObjectBtn 기본 상태 */
+#createObjectBtn {
+  left: 20px;
+  background: #e67e22;
+  color: #fff;
+  border: 3px solid #d35400;
+}
+
+/* 🔁 tracking 상태 (취소 상태) */
+#createObjectBtn.tracking {
+  background: #f39c12;
+  border-color: #d68910;
+}
+
+/* ⬇ 눌렀을 때: 일반 상태 */
+#createObjectBtn:active:not(.tracking) {
+  background: #d35400 !important;
+  border-color: #a04000 !important;
+}
+
+/* ⬇ 눌렀을 때: tracking 상태 */
+#createObjectBtn.tracking:active {
+  background: #e67e22 !important;
+  border-color: #b9770e !important;
+}
+
+/* ✅ startStopBtn은 그대로 유지 */
+#startStopBtn {
+  left: 140px;
+  background: #27ae60;
+  color: #fff;
+  border: 3px solid #1e8449;
+}
     #resetBtn {
   position: absolute;
-  left: 230px;
+  left: 260px;
   top: 20px;
   padding: 12px 20px;
   font-size: 16px;
   border-radius: 6px;
+  width:110px;
+  text-align:center;
   cursor: pointer;
   background: #8e44ad; /* 보라색 */
   color: #fff;
@@ -151,11 +195,11 @@ const arrows = [];
 btn.addEventListener('click', () => {
   tracking = !tracking;
   delayPassed = false;
+
   if (tracking) {
     followBox.style.display = 'block';
     btn.textContent = '취소';
-    btn.style.background = '#f39c12'; // 주황 연한 색으로 변경
-    btn.style.borderColor = '#d68910';
+    btn.classList.add('tracking');  // ✅ 클래스만 추가
     window.addEventListener('mousemove', followMouse);
     setTimeout(() => delayPassed = true, 300);
     window.addEventListener('click', handleClickOnce);
@@ -169,12 +213,11 @@ function stopTracking() {
   delayPassed = false;
   followBox.style.display = 'none';
   btn.textContent = '물체 생성';
-  btn.style.background = '#e67e22'; // 원래 색상으로 복구
-  btn.style.borderColor = '#d35400';
+  btn.classList.remove('tracking');  // ✅ 클래스만 제거
   window.removeEventListener('mousemove', followMouse);
   window.removeEventListener('click', handleClickOnce);
 }
-
+    
 function followMouse(e) {
   const y = getBoxY();
   followBox.style.left = e.clientX + 'px';

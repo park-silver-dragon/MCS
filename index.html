@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test71</title>
+  <title>test72</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
@@ -289,7 +289,7 @@ function positionArrow(data) {
   }
 
   data.arrow.style.top = boxY + 'px';
-  data.velocityLabel.style.top = (boxY - 20) + 'px';  // 화살표 바로 위에 위치
+  data.velocityLabel.style.top = (boxY - 8) + 'px';  // 화살표 바로 위에 위치
 
   data.arrow.style.display = 'block';
   data.velocityLabel.style.display = 'block';
@@ -541,7 +541,7 @@ function move() {
     obj.arrow.style.top = (obj.y + (boxSize - arrowRect.height) / 2) + 'px';
 
     if (obj.velocityLabel) {
-      obj.velocityLabel.style.top = (obj.y + (boxSize - arrowRect.height) / 2 - 20) + 'px';
+      obj.velocityLabel.style.top = (obj.y + (boxSize - arrowRect.height) / 2 - 8) + 'px';
       obj.velocityLabel.textContent = `${obj.velocity} m/s`;
     }
 

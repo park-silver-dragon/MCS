@@ -1,451 +1,374 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<title>test57</title>
-<style>
-  html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
-  #createObjectBtn {
-    position:absolute; top:20px; left:20px;
-    padding:12px 20px; background:#e67e22; color:#fff;
-    border:3px solid #d35400; border-radius:6px;
-    font-size:16px; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.3);
-    z-index:1000;
-  }
-  #startStopBtn {
-    position:absolute; top:20px; left:140px;
-    padding:12px 20px; background:#27ae60; color:#fff;
-    border:3px solid #1e8449; border-radius:6px;
-    font-size:16px; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.3);
-    z-index:1000;
-  }
-  #ground {
-    position:absolute; bottom:0; left:0;
-    width:100%; height:120px;
-    background:linear-gradient(90deg,#7f8c8d,#bdc3c7);
-    border-top:3px solid #2c3e50; z-index:10;
-  }
-  #simulator {
-    position:absolute; top:0; left:0;
-    width:100%; height:calc(100% - 120px);
-    background:#fff; z-index:20; overflow: hidden;
-  }
-  #followBox {
-    position:absolute; width:60px; height:60px;
-    background:rgba(52,152,219,0.5); border-radius:6px;
-    display:none; z-index:900; transform:translate(-50%,0);
-  }
-  .object {
-    position:absolute; width:60px; height:60px;
-    background:#3498db; border:2px solid #2c3e50; border-radius:6px;
-    display:flex; align-items:center; justify-content:center;
-    flex-direction:column; cursor:pointer; user-select:none;
-    z-index:800; color:#fff; font-size:12px;
-  }
-  .label-text { font-size:14px; color:#fff; pointer-events:none; user-select:none; }
-  .input-container { display:flex; flex-direction:column; gap:4px; width:100%; }
-  .input-with-unit { position:relative; width:100%; }
-  .input-with-unit input {
-    width:100%; font-size:12px; padding-right:28px; box-sizing:border-box;
-  }
-  .input-with-unit span {
-    position:absolute; right:4px; top:50%; transform:translateY(-50%);
-    font-size:10px; color:#555; pointer-events:none;
-  }
-  .done-btn {
-    position:absolute; width:60px; font-size:12px; padding:3px 0;
-    border:1px solid #1e8449; background:#27ae60; color:#fff;
-    border-radius:4px; cursor:pointer; z-index:1001;
-  }
-  #alertBox {
-    position:fixed; top:-50px; left:50%; transform:translateX(-50%);
-    background:rgba(231,76,60,0.85); color:#fff;
-    padding:12px 24px; border-radius:6px; font-weight:bold;
-    box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:2000;
-    opacity:0.85; animation-fill-mode:forwards;
-  }
-  @keyframes dropDown {
-    0% { top:-50px; opacity:0 }
-    50%,100% { top:20px; opacity:1 }
-  }
-  @keyframes fadeOut {
-    from { opacity:1 } to { opacity:0 }
-  }
-  .arrow {
-    position:absolute; font-size:72px; font-weight:bold; color:#000;
-    cursor:pointer; user-select:none; z-index:700;
-    user-select:none;
-  }
-  /* 벽 스타일 */
-  .wall {
-    position:absolute;
-    top:0; width:10px; height:calc(100% - 120px);
-    background:#555;
-    z-index:900;
-  }
-  #leftWall { left:0; }
-  #rightWall { right:0; }
-</style>
+  <meta charset="UTF-8" />
+  <title>test58</title>
+  <style>
+    html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
+    #createObjectBtn, #startStopBtn {
+      position:absolute; top:20px; padding:12px 20px; border-radius:6px;
+      font-size:16px; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.3);
+      z-index:1000;
+      user-select:none;
+    }
+    #createObjectBtn {
+      left:20px; background:#e67e22; color:#fff;
+      border:3px solid #d35400;
+    }
+    #startStopBtn {
+      left:140px; background:#27ae60; color:#fff;
+      border:3px solid #1e8449;
+    }
+    #ground {
+      position:absolute; bottom:0; left:0;
+      width:100%; height:120px;
+      background:linear-gradient(90deg,#7f8c8d,#bdc3c7);
+      border-top:3px solid #2c3e50; z-index:10;
+    }
+    #simulator {
+      position:absolute; top:0; left:0;
+      width:100%; height:calc(100% - 120px);
+      background:#fff; z-index:20;
+      overflow: hidden;
+    }
+    #followBox {
+      position:absolute; width:60px; height:60px;
+      background:rgba(52,152,219,0.5); border-radius:6px;
+      display:none; z-index:900; transform:translate(-50%,0);
+      pointer-events:none;
+    }
+    .object {
+      position:absolute; width:60px; height:60px;
+      background:#3498db; border:2px solid #2c3e50; border-radius:6px;
+      display:flex; align-items:center; justify-content:center;
+      flex-direction:column; cursor:pointer; user-select:none;
+      z-index:800; color:#fff; font-size:12px;
+    }
+    .label-text { font-size:14px; color:#fff; pointer-events:none; user-select:none; }
+    .input-container { display:flex; flex-direction:column; gap:4px; width:100%; }
+    .input-with-unit { position:relative; width:100%; }
+    .input-with-unit input {
+      width:100%; font-size:12px; padding-right:28px; box-sizing:border-box;
+    }
+    .input-with-unit span {
+      position:absolute; right:4px; top:50%; transform:translateY(-50%);
+      font-size:10px; color:#555; pointer-events:none;
+    }
+    .done-btn {
+      position:absolute; width:60px; font-size:12px; padding:3px 0;
+      border:1px solid #1e8449; background:#27ae60; color:#fff;
+      border-radius:4px; cursor:pointer; z-index:1001;
+      user-select:none;
+    }
+    #alertBox {
+      position:fixed; top:-50px; left:50%; transform:translateX(-50%);
+      background:rgba(231,76,60,0.85); color:#fff;
+      padding:12px 24px; border-radius:6px; font-weight:bold;
+      box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:2000;
+      opacity:0.85; animation-fill-mode:forwards;
+    }
+    @keyframes dropDown {
+      0% { top:-50px; opacity:0 }
+      50%,100% { top:20px; opacity:1 }
+    }
+    @keyframes fadeOut {
+      from { opacity:1 } to { opacity:0 }
+    }
+    .arrow {
+      position:absolute; font-size:72px; font-weight:bold; color:#000;
+      cursor:pointer; user-select:none; z-index:700;
+      user-select:none;
+    }
+  </style>
 </head>
 <body>
   <button id="createObjectBtn">물체 생성</button>
   <button id="startStopBtn">시작</button>
-
   <div id="simulator"></div>
   <div id="ground"></div>
   <div id="followBox"></div>
   <div id="alertBox" style="display:none;"></div>
+  <script>
+    const btn = document.getElementById('createObjectBtn');
+const startStopBtn = document.getElementById('startStopBtn');
+const followBox = document.getElementById('followBox');
+const simulator = document.getElementById('simulator');
+const alertBox = document.getElementById('alertBox');
+const groundHeight = 120;
+const boxSize = 60;
+const wallThickness = 10;
 
-  <!-- 벽 -->
-  <div id="leftWall" class="wall"></div>
-  <div id="rightWall" class="wall"></div>
+let tracking = false;
+let delayPassed = false;
+let moving = false;
 
-<script>
-  const btnCreate = document.getElementById('createObjectBtn');
-  const btnStartStop = document.getElementById('startStopBtn');
-  const followBox = document.getElementById('followBox');
-  const simulator = document.getElementById('simulator');
-  const alertBox = document.getElementById('alertBox');
-  const leftWall = document.getElementById('leftWall');
-  const rightWall = document.getElementById('rightWall');
+const objects = [];
+const arrows = [];
 
-  let tracking = false, delayPassed = false;
-  let running = false;
-  const objects = [];
-
-  btnCreate.addEventListener('click', () => {
-    tracking = !tracking; delayPassed = false;
-    if (tracking) {
-      followBox.style.display = 'block';
-      btnCreate.textContent = '취소';
-      window.addEventListener('mousemove', followMouse);
-      setTimeout(() => delayPassed = true, 300);
-      window.addEventListener('click', handleClickOnce);
-    } else {
-      stopTracking();
-    }
-  });
-
-  function stopTracking() {
-    tracking = false;
-    delayPassed = false;
-    followBox.style.display = 'none';
-    btnCreate.textContent = '물체 생성';
-    window.removeEventListener('mousemove', followMouse);
-    window.removeEventListener('click', handleClickOnce);
-  }
-
-  function followMouse(e) {
-    const y = getBoxY();
-    followBox.style.left = e.clientX + 'px';
-    followBox.style.top = y + 'px';
-  }
-
-  function getBoxY() {
-    const groundHeight = 120;
-    const boxHeight = 60;
-    const offset = -2;
-    return window.innerHeight - groundHeight - boxHeight + offset;
-  }
-
-  function showAlert(msg) {
-    alertBox.textContent = msg;
-    alertBox.style.display = 'block';
-    alertBox.style.animation = 'dropDown 0.5s forwards';
-    setTimeout(() => {
-      alertBox.style.animation = 'fadeOut 0.5s forwards';
-    }, 2500);
-    alertBox.addEventListener('animationend', () => {
-      if (alertBox.style.opacity === '0') {
-        alertBox.style.display = 'none';
-        alertBox.style.animation = '';
-      }
-    }, { once: true });
-  }
-
-  function handleClickOnce(e) {
-    if (!delayPassed) return;
-    if (!tracking) return;
-    const box = document.createElement('div');
-    box.className = 'object';
-    const x = e.clientX - 30;
-    const y = getBoxY();
-    box.style.left = x + 'px';
-    box.style.top = y + 'px';
-
-    simulator.appendChild(box);
-
-    // 초기 데이터
-    let savedData = { mass: '', velocity: '', dir: '→' };
-    // 위치 정보
-    const boxW = 60, boxH = 60;
-
-    // 화살표 생성
-    const arrow = document.createElement('div');
-    arrow.className = 'arrow';
-    arrow.textContent = savedData.dir;
-    simulator.appendChild(arrow);
-
-    // 입력창과 완료 버튼 생성 함수
-    function makeInputs(m, v) {
-      const cont = document.createElement('div');
-      cont.className = 'input-container';
-      [['질량', 'kg', m], ['속도', 'm/s', v]].forEach(([ph, unit, val]) => {
-        const row = document.createElement('div');
-        row.className = 'input-with-unit';
-        const inp = document.createElement('input');
-        inp.type = 'number';
-        inp.placeholder = ph;
-        inp.value = val || '';
-        inp.min = "0";
-        inp.step = "any";
-        inp.style.textAlign = 'right';
-        const span = document.createElement('span');
-        span.textContent = unit;
-        row.appendChild(inp);
-        row.appendChild(span);
-        cont.appendChild(row);
-      });
-      return {
-        cont,
-        massInput: cont.children[0].querySelector('input'),
-        velInput: cont.children[1].querySelector('input')
-      };
-    }
-
-    // 완료 버튼 생성
-    function createDoneBtn(x, y) {
-      const btn = document.createElement('button');
-      btn.className = 'done-btn';
-      btn.textContent = '완료';
-      btn.style.left = x + 'px';
-      btn.style.top = y + 'px';
-      simulator.appendChild(btn);
-      return btn;
-    }
-
-    // 저장된 값으로 UI 세팅
-    function openInputs() {
-      if (box.querySelector('.input-container')) return;
-      const { cont: ic, massInput, velInput } = makeInputs(savedData.mass, savedData.velocity);
-      box.appendChild(ic);
-      doneBtn = createDoneBtn(parseInt(box.style.left), parseInt(box.style.top) - 30);
-
-      doneBtn.onclick = () => {
-        const m = massInput.value.trim();
-        const v = velInput.value.trim();
-
-        if (m === '' || v === '') {
-          showAlert('질량과 속도를 입력해 주세요');
-          return;
-        }
-
-        savedData.mass = m;
-        savedData.velocity = v;
-
-        // 속도에 따라 방향 자동 조정
-        if (Number(v) < 0) {
-          savedData.dir = savedData.dir === '→' ? '←' : '→';
-          savedData.velocity = String(Math.abs(Number(v)));
-          arrow.textContent = savedData.dir;
-        }
-
-        // 완료 후 입력 UI 제거
-        ic.remove();
-        doneBtn.remove();
-
-        updateLabel();
-      };
-    }
-
-    // 초기 완료 버튼은 입력 UI와 함께 바로 보이게 함
-    let doneBtn = createDoneBtn(x, y - 30);
-    const { cont: inputCont, massInput, velInput } = makeInputs(savedData.mass, savedData.velocity);
-    box.appendChild(inputCont);
-
-    doneBtn.onclick = () => {
-      const m = massInput.value.trim();
-      const v = velInput.value.trim();
-
-      if (m === '' || v === '') {
-        showAlert('질량과 속도를 입력해 주세요');
-        return;
-      }
-
-      savedData.mass = m;
-      savedData.velocity = v;
-
-      if (Number(v) < 0) {
-        savedData.dir = savedData.dir === '→' ? '←' : '→';
-        savedData.velocity = String(Math.abs(Number(v)));
-        arrow.textContent = savedData.dir;
-      }
-
-      inputCont.remove();
-      doneBtn.remove();
-
-      updateLabel();
-    };
-
-    // 라벨 업데이트 함수 (질량 표시)
-    function updateLabel() {
-      let lbl = box.querySelector('.label-text');
-      if (!lbl) {
-        lbl = document.createElement('div');
-        lbl.className = 'label-text';
-        box.appendChild(lbl);
-      }
-      lbl.textContent = `${savedData.mass} kg`;
-      arrow.style.display = 'block';
-    }
-
-    updateLabel();
-
-    // 화살표 위치 업데이트
-    function updateArrowPos() {
-      const gap = -10;
-      const boxLeft = parseFloat(box.style.left);
-      const boxTop = parseFloat(box.style.top);
-      const arrowW = arrow.offsetWidth;
-      const arrowH = arrow.offsetHeight;
-      const boxW = boxW, boxH = boxH;
-
-      if (savedData.dir === '→') {
-        arrow.style.left = (boxLeft + boxW + gap) + 'px';
-      } else {
-        arrow.style.left = (boxLeft - arrowW - gap) + 'px';
-      }
-      arrow.style.top = (boxTop + (boxH - arrowH) / 2) + 'px';
-    }
-
-    // 완료 버튼 위치 업데이트 (완료 버튼은 simulator에 있으므로 box 위치 기준으로 옮김)
-    function updateDoneBtnPos() {
-      if (doneBtn) {
-        const boxLeft = parseFloat(box.style.left);
-        const boxTop = parseFloat(box.style.top);
-        doneBtn.style.left = boxLeft + 'px';
-        doneBtn.style.top = (boxTop - 30) + 'px';
-      }
-    }
-
-    updateArrowPos();
-    updateDoneBtnPos();
-
-    arrow.addEventListener('click', e => {
-      e.stopPropagation();
-      if (savedData.dir === '→') savedData.dir = '←';
-      else savedData.dir = '→';
-      arrow.textContent = savedData.dir;
-
-      // 방향 바뀌면 속도도 부호 바꿔주기
-      if (savedData.velocity) {
-        savedData.velocity = String(-Number(savedData.velocity));
-      }
-    });
-
-    box.addEventListener('click', e => {
-      e.stopPropagation();
-      if (box.querySelector('.input-container')) return; // 이미 열려있으면 무시
-      openInputs();
-    });
-
-    objects.push({
-      element: box,
-      arrow,
-      doneBtn,
-      savedData,
-      updateArrowPos,
-      updateDoneBtnPos,
-      velocity: 0,
-      direction: savedData.dir,
-      mass: 0,
-      posX: x,
-      posY: y
-    });
-
+btn.addEventListener('click', () => {
+  tracking = !tracking;
+  delayPassed = false;
+  if (tracking) {
+    followBox.style.display = 'block';
+    btn.textContent = '취소';
+    window.addEventListener('mousemove', followMouse);
+    setTimeout(() => delayPassed = true, 300);
+    window.addEventListener('click', handleClickOnce);
+  } else {
     stopTracking();
   }
+});
 
-  // 애니메이션 루프 및 움직임 관리
-  let animationId = null;
+function stopTracking() {
+  tracking = false;
+  delayPassed = false;
+  followBox.style.display = 'none';
+  btn.textContent = '물체 생성';
+  window.removeEventListener('mousemove', followMouse);
+  window.removeEventListener('click', handleClickOnce);
+}
 
-  function startMotion() {
-    if (animationId) return;
-    running = true;
-    btnStartStop.textContent = '중지';
-    btnStartStop.style.backgroundColor = '#c0392b';
-    btnStartStop.style.borderColor = '#922b21';
+function followMouse(e) {
+  const y = getBoxY();
+  followBox.style.left = e.clientX + 'px';
+  followBox.style.top = y + 'px';
+}
 
-    // 각 물체의 속도, 방향 초기화
-    objects.forEach(obj => {
-      obj.mass = Number(obj.savedData.mass) || 1;
-      obj.velocity = Number(obj.savedData.velocity) || 0;
-      obj.direction = obj.savedData.dir || '→';
+function getBoxY() {
+  return window.innerHeight - groundHeight - boxSize + -2;
+}
 
-      // 방향에 따라 속도 부호 지정
-      obj.velocity = obj.direction === '→' ? Math.abs(obj.velocity) : -Math.abs(obj.velocity);
-    });
-
-    function loop() {
-      objects.forEach(obj => {
-        let newX = obj.posX + obj.velocity;
-        const boxW = 60;
-        const leftBound = 10; // leftWall width
-        const rightBound = window.innerWidth - 10 - boxW; // rightWall left edge
-
-        // 벽 충돌 체크
-        if (newX < leftBound) {
-          newX = leftBound;
-          obj.velocity = 0;
-          obj.savedData.velocity = '0';
-          obj.direction = '→';
-          obj.arrow.textContent = '→';
-        } else if (newX > rightBound) {
-          newX = rightBound;
-          obj.velocity = 0;
-          obj.savedData.velocity = '0';
-          obj.direction = '←';
-          obj.arrow.textContent = '←';
-        }
-
-        obj.posX = newX;
-        obj.element.style.left = newX + 'px';
-        obj.arrow.style.top = (obj.posY + 30 - obj.arrow.offsetHeight / 2) + 'px';
-
-        // 화살표 위치 업데이트 (좌우 대칭)
-        const gap = -10;
-        if (obj.direction === '→') {
-          obj.arrow.style.left = (newX + boxW + gap) + 'px';
-        } else {
-          obj.arrow.style.left = (newX - obj.arrow.offsetWidth - gap) + 'px';
-        }
-
-        // 완료 버튼도 같이 움직임
-        if (obj.doneBtn && obj.doneBtn.parentElement) {
-          obj.doneBtn.style.left = newX + 'px';
-          obj.doneBtn.style.top = (obj.posY - 30) + 'px';
-        }
-      });
-
-      animationId = requestAnimationFrame(loop);
+function showAlert(msg) {
+  alertBox.textContent = msg;
+  alertBox.style.display = 'block';
+  alertBox.style.animation = 'dropDown 0.5s forwards';
+  setTimeout(() => alertBox.style.animation = 'fadeOut 0.5s forwards', 2500);
+  alertBox.addEventListener('animationend', () => {
+    if (alertBox.style.opacity === '0') {
+      alertBox.style.display = 'none'; alertBox.style.animation = '';
     }
-    loop();
-  }
+  }, { once: true });
+}
 
-  function stopMotion() {
-    if (!animationId) return;
+function handleClickOnce(e) {
+  if (!delayPassed) return;
+  if (e.target === startStopBtn || e.target === btn) return;
+  const x = e.clientX - boxSize / 2;
+  const y = getBoxY();
+
+  createObject(x, y);
+
+  stopTracking();
+}
+function createObject(x, y) {
+  const box = document.createElement('div');
+  box.className = 'object';
+  box.style.left = x + 'px';
+  box.style.top = y + 'px';
+
+  const arrow = document.createElement('div');
+  arrow.className = 'arrow';
+  arrow.textContent = '→';
+
+  simulator.appendChild(box);
+  simulator.appendChild(arrow);
+
+  const data = {
+    element: box,
+    arrow: arrow,
+    x: x,
+    y: y,
+    mass: '',
+    velocity: '',
+    direction: 1,
+    moving: false,
+    inputContainer: null,
+    doneBtn: null,
+    massInput: null,
+    velocityInput: null,
+  };
+
+  arrows.push(arrow);
+  objects.push(data);
+
+  positionArrow(data);
+
+  box.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    openInput(data);
+  });
+
+  arrow.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    toggleDirection(data);
+  });
+}
+
+function positionArrow(data) {
+  const gap = -10;
+  const arrowRect = data.arrow.getBoundingClientRect();
+  if (data.direction === 1) {
+    data.arrow.style.left = (data.x + boxSize + gap) + 'px';
+  } else {
+    data.arrow.style.left = (data.x - arrowRect.width - gap) + 'px';
+  }
+  data.arrow.style.top = (data.y + (boxSize - arrowRect.height) / 2) + 'px';
+  data.arrow.style.display = 'block';
+}
+
+function toggleDirection(data) {
+  data.direction *= -1;
+  data.arrow.textContent = data.direction === 1 ? '→' : '←';
+  positionArrow(data);
+}
+
+function openInput(data) {
+  if (data.inputContainer) return;
+
+  const cont = document.createElement('div');
+  cont.className = 'input-container';
+
+  const massDiv = document.createElement('div');
+  massDiv.className = 'input-with-unit';
+  const massInput = document.createElement('input');
+  massInput.type = 'number';
+  massInput.placeholder = '질량';
+  massInput.value = data.mass;
+  const massSpan = document.createElement('span');
+  massSpan.textContent = 'kg';
+  massDiv.appendChild(massInput);
+  massDiv.appendChild(massSpan);
+
+  const velDiv = document.createElement('div');
+  velDiv.className = 'input-with-unit';
+  const velInput = document.createElement('input');
+  velInput.type = 'number';
+  velInput.placeholder = '속도';
+  velInput.value = data.velocity;
+  const velSpan = document.createElement('span');
+  velSpan.textContent = 'm/s';
+  velDiv.appendChild(velInput);
+  velDiv.appendChild(velSpan);
+
+  cont.appendChild(massDiv);
+  cont.appendChild(velDiv);
+
+  const doneBtn = document.createElement('button');
+  doneBtn.className = 'done-btn';
+  doneBtn.textContent = '완료';
+
+  doneBtn.style.left = data.x + 'px';
+  doneBtn.style.top = (data.y - 30) + 'px';
+
+  simulator.appendChild(doneBtn);
+
+  data.element.appendChild(cont);
+  data.inputContainer = cont;
+  data.doneBtn = doneBtn;
+  data.massInput = massInput;
+  data.velocityInput = velInput;
+
+  massInput.focus();
+
+  doneBtn.onclick = () => {
+    const m = massInput.value.trim();
+    const v = velInput.value.trim();
+    if (m === '' || v === '') {
+      showAlert('질량과 속도를 입력해 주세요');
+      return;
+    }
+
+    data.mass = m;
+    data.velocity = v;
+
+    data.inputContainer.remove();
+    data.inputContainer = null;
+    data.doneBtn.remove();
+    data.doneBtn = null;
+
+    let lbl = data.element.querySelector('.label-text');
+    if (!lbl) {
+      lbl = document.createElement('div');
+      lbl.className = 'label-text';
+      data.element.appendChild(lbl);
+    }
+    lbl.textContent = `${m} kg`;
+
+    data.arrow.style.display = 'block';
+  };
+}
+
+startStopBtn.addEventListener('click', () => {
+  moving = !moving;
+  if (moving) {
+    startStopBtn.textContent = '중지';
+    startStopBtn.style.background = '#c0392b';
+    startStopBtn.style.borderColor = '#922b21';
+    startMovement();
+  } else {
+    startStopBtn.textContent = '시작';
+    startStopBtn.style.background = '#27ae60';
+    startStopBtn.style.borderColor = '#1e8449';
+    stopMovement();
+  }
+});
+
+let animationId = null;
+
+function startMovement() {
+  objects.forEach(obj => obj.moving = true);
+  move();
+}
+
+function stopMovement() {
+  objects.forEach(obj => obj.moving = false);
+  if (animationId) {
     cancelAnimationFrame(animationId);
     animationId = null;
-    running = false;
-    btnStartStop.textContent = '시작';
-    btnStartStop.style.backgroundColor = '#27ae60';
-    btnStartStop.style.borderColor = '#1e8449';
   }
+}
 
-  btnStartStop.addEventListener('click', () => {
-    if (running) stopMotion();
-    else startMotion();
+function move() {
+  objects.forEach(obj => {
+    if (!obj.moving) return;
+
+    const vx = obj.velocity * obj.direction;
+    let newX = obj.x + vx;
+
+    if (newX < wallThickness) {
+      newX = wallThickness;
+      obj.velocity = 0;
+    } else if (newX > window.innerWidth - wallThickness - boxSize) {
+      newX = window.innerWidth - wallThickness - boxSize;
+      obj.velocity = 0;
+    }
+
+    obj.x = newX;
+    obj.element.style.left = obj.x + 'px';
+
+    const arrowRect = obj.arrow.getBoundingClientRect();
+    const gap = -10;
+    if (obj.direction === 1) {
+      obj.arrow.style.left = (obj.x + boxSize + gap) + 'px';
+    } else {
+      obj.arrow.style.left = (obj.x - arrowRect.width - gap) + 'px';
+    }
+
+    obj.arrow.style.top = (obj.y + (boxSize - arrowRect.height) / 2) + 'px';
+
+    if (obj.doneBtn) {
+      obj.doneBtn.style.left = obj.x + 'px';
+      obj.doneBtn.style.top = (obj.y - 30) + 'px';
+    }
+
+    if (obj.inputContainer) {
+      obj.inputContainer.style.left = obj.x + 'px';
+      obj.inputContainer.style.top = obj.y + 'px';
+    }
   });
-</script>
+
+  animationId = requestAnimationFrame(move);
+}
+  </script>
 </body>
 </html>

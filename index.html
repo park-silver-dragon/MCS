@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test9</title>
+  <title>test10</title>
   <style>
     html, body {
       margin: 0;
@@ -76,7 +76,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      position: absolute;
+      font-size: 12px;
+      color: white;
     }
 
     .input-container {
@@ -86,28 +87,36 @@
       gap: 4px;
     }
 
-    .object input {
-      width: 48px;
+    .input-row {
+      display: flex;
+      align-items: center;
+    }
+
+    .unit-label {
+      font-size: 12px;
+      margin-right: 2px;
+      color: #2c3e50;
+      width: 20px;
+      text-align: right;
+    }
+
+    .object input[type="number"] {
+      width: 36px;
       font-size: 12px;
       padding: 2px;
-      box-sizing: border-box;
     }
 
     .done-btn {
-      position: absolute;
-      top: -24px;
-      left: 50%;
-      transform: translateX(-50%);
+      margin-top: 4px;
+      width: 100%;
       font-size: 12px;
-      padding: 2px 6px;
-      border: 1px solid #2c3e50;
-      background-color: #e67e22;
+      padding: 2px 4px;
+      border: 1px solid #1e8449;
+      background-color: #27ae60;
       color: white;
       border-radius: 4px;
       cursor: pointer;
-      z-index: 1001;
     }
-
   </style>
 </head>
 <body>
@@ -173,7 +182,7 @@
       box.style.left = x + 'px';
       box.style.top = y + 'px';
 
-      // 클릭 시 입력창과 완료 버튼 표시
+      // 클릭 시 입력창 표시
       box.addEventListener('click', (event) => {
         event.stopPropagation();
 
@@ -182,15 +191,30 @@
         const inputContainer = document.createElement('div');
         inputContainer.className = 'input-container';
 
+        const row1 = document.createElement('div');
+        row1.className = 'input-row';
+        const label1 = document.createElement('span');
+        label1.className = 'unit-label';
+        label1.textContent = 'kg';
         const input1 = document.createElement('input');
+        input1.type = 'number';
         input1.placeholder = '질량';
+        row1.appendChild(label1);
+        row1.appendChild(input1);
 
+        const row2 = document.createElement('div');
+        row2.className = 'input-row';
+        const label2 = document.createElement('span');
+        label2.className = 'unit-label';
+        label2.textContent = 'm/s';
         const input2 = document.createElement('input');
+        input2.type = 'number';
         input2.placeholder = '속도';
+        row2.appendChild(label2);
+        row2.appendChild(input2);
 
-        inputContainer.appendChild(input1);
-        inputContainer.appendChild(input2);
-        box.appendChild(inputContainer);
+        inputContainer.appendChild(row1);
+        inputContainer.appendChild(row2);
 
         const doneBtn = document.createElement('button');
         doneBtn.className = 'done-btn';
@@ -200,20 +224,20 @@
           const mass = input1.value;
           const velocity = input2.value;
 
-          console.log(`입력값 → 질량: ${mass}, 속도: ${velocity}`);
+          if (mass === '') return alert('질량을 입력해주세요');
+          // 필요한 경우 속도도 검사 가능
 
-          inputContainer.remove();
-          doneBtn.remove();
+          box.textContent = `${mass} kg`;
         };
 
-        box.appendChild(doneBtn);
+        inputContainer.appendChild(doneBtn);
+        box.innerHTML = ''; // 기존 내용 제거
+        box.appendChild(inputContainer);
       });
 
       simulator.appendChild(box);
       stopTracking();
     }
-
-    // 바깥 클릭 시 입력창 닫지 않음 (기능 유지하고 싶으면 여기에 추가 가능)
   </script>
 
 </body>

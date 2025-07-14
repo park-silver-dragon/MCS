@@ -52,16 +52,16 @@
 
   /* 마우스 따라다니는 반투명 상자 스타일 */
   #followBox {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    background-color: rgba(230, 126, 34, 0.5); /* 주황색 반투명 */
-    pointer-events: none; /* 마우스 이벤트 무시 */
-    border-radius: 6px;
-    display: none; /* 기본 숨김 */
-    z-index: 900;
-    transform: translate(-50%, -50%);
-  }
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background-color: rgba(230, 126, 34, 0.5);
+  pointer-events: none;
+  border-radius: 6px;
+  display: none;
+  z-index: 900;
+  transform: translate(-50%, 0); /* 세로 기준선을 위쪽으로 변경 */
+}
 </style>
 </head>
 <body>
@@ -85,7 +85,7 @@
     tracking = !tracking;
     if (tracking) {
       followBox.style.display = 'block';
-      btn.textContent = '추적 중지';
+      btn.textContent = '취소';
       window.addEventListener('mousemove', followMouse);
     } else {
       followBox.style.display = 'none';

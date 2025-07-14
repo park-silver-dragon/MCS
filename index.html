@@ -2,11 +2,11 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test83</title>
+  <title>test84</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
-      position:absolute; top:20px; padding:12px 20px; border-radius:6px;
+      position:absolute; top:20px; padding:12px 20px; border-radius:6px; width:110px; text-align:center; transition: background-color 0.3s ease;
       font-size:16px; cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.3);
       z-index:1000;
       user-select:none;
@@ -154,6 +154,8 @@ btn.addEventListener('click', () => {
   if (tracking) {
     followBox.style.display = 'block';
     btn.textContent = '취소';
+    btn.style.background = '#f39c12'; // 주황 연한 색으로 변경
+    btn.style.borderColor = '#d68910';
     window.addEventListener('mousemove', followMouse);
     setTimeout(() => delayPassed = true, 300);
     window.addEventListener('click', handleClickOnce);
@@ -167,6 +169,8 @@ function stopTracking() {
   delayPassed = false;
   followBox.style.display = 'none';
   btn.textContent = '물체 생성';
+  btn.style.background = '#e67e22'; // 원래 색상으로 복구
+  btn.style.borderColor = '#d35400';
   window.removeEventListener('mousemove', followMouse);
   window.removeEventListener('click', handleClickOnce);
 }

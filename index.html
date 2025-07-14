@@ -1,107 +1,155 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<title> test5 </title>
-<style>
-  html, body {
-    margin: 0; padding: 0; height: 100%;
-    background-color: #eef2f3;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-  }
+  <meta charset="UTF-8" />
+  <title> test6 </title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #eef2f3;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
 
-  #createObjectBtn {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    padding: 12px 20px;
-    background-color: #e67e22;
-    color: white;
-    border: 3px solid #d35400;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    z-index: 1000;
-  }
-  #createObjectBtn:hover {
-    background-color: #d35400;
-    border-color: #b03a2e;
-  }
+    #createObjectBtn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 12px 20px;
+      background-color: #e67e22;
+      color: white;
+      border: 3px solid #d35400;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+    #createObjectBtn:hover {
+      background-color: #d35400;
+      border-color: #b03a2e;
+    }
 
-  #ground {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(90deg, #7f8c8d, #bdc3c7);
-    border-top: 3px solid #2c3e50;
-    box-shadow: inset 0 5px 15px rgba(0,0,0,0.2);
-  }
+    #ground {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(90deg, #7f8c8d, #bdc3c7);
+      border-top: 3px solid #2c3e50;
+      box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
 
-  #simulator {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: calc(100% - 120px);
-    background-color: #fff;
-  }
+    #simulator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 120px);
+      background-color: #fff;
+    }
 
-  /* 마우스 따라다니는 반투명 상자 스타일 */
-  #followBox {
-  position: absolute;
-  width: 60px;
-  height: 60px;
-  background-color: rgba(230, 126, 34, 0.5);
-  pointer-events: none;
-  border-radius: 6px;
-  display: none;
-  z-index: 900;
-  transform: translate(-50%, 0); /* 세로 기준선을 위쪽으로 변경 */
-}
-</style>
+    #followBox {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background-color: rgba(230, 126, 34, 0.5);
+      pointer-events: none;
+      border-radius: 6px;
+      display: none;
+      z-index: 900;
+      transform: translate(-50%, 0);
+    }
+
+    .object {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background-color: #e67e22;
+      border-radius: 6px;
+      z-index: 800;
+    }
+  </style>
 </head>
 <body>
 
-<button id="createObjectBtn">물체 생성</button>
+  <button id="createObjectBtn">물체 생성</button>
 
-<div id="simulator">
-  <!-- 시뮬레이터 영역 -->
-</div>
+  <div id="simulator"></div>
+  <div id="ground"></div>
+  <div id="followBox"></div>
 
-<div id="ground"></div>
+  <script>
+    const btn = document.getElementById('createObjectBtn');
+    const followBox = document.getElementById('followBox');
+    const simulator = document.getElementById('simulator');
 
-<div id="followBox"></div>
+    let tracking = false;
+    let delayPassed = false;
 
-<script>
-  const btn = document.getElementById('createObjectBtn');
-  const followBox = document.getElementById('followBox');
-  let tracking = false;
+    btn.addEventListener('click', () => {
+      tracking = !tracking;
+      delayPassed = false;
 
-  btn.addEventListener('click', () => {
-    tracking = !tracking;
-    if (tracking) {
-      followBox.style.display = 'block';
-      btn.textContent = '취소';
-      window.addEventListener('mousemove', followMouse);
-    } else {
+      if (tracking) {
+        // 추적 모드 시작
+        followBox.style.display = 'block';
+        btn.textContent = '취소';
+
+        window.addEventListener('mousemove', followMouse);
+
+        // 300ms 후 클릭 허용
+        setTimeout(() => {
+          delayPassed = true;
+        }, 300);
+
+        window.addEventListener('click', handleClickOnce);
+      } else {
+        // 추적 모드 해제
+        stopTracking();
+      }
+    });
+
+    function stopTracking() {
+      tracking = false;
+      delayPassed = false;
       followBox.style.display = 'none';
       btn.textContent = '물체 생성';
       window.removeEventListener('mousemove', followMouse);
+      window.removeEventListener('click', handleClickOnce);
     }
-  });
 
-  function followMouse(e) {
-    const groundHeight = 120;
-    const boxHeight = 60;
+    function followMouse(e) {
+      const groundHeight = 120;
+      const boxHeight = 60;
 
-    followBox.style.left = e.clientX + 'px';
-    followBox.style.top = (window.innerHeight - groundHeight - boxHeight) + 'px';
-  }
-</script>
+      followBox.style.left = e.clientX + 'px';
+      followBox.style.top = (window.innerHeight - groundHeight - boxHeight) + 'px';
+    }
+
+    function handleClickOnce(e) {
+      if (!delayPassed) return;
+
+      const box = document.createElement('div');
+      box.className = 'object';
+      const groundHeight = 120;
+      const boxHeight = 60;
+
+      // 위치 계산
+      const x = e.clientX - 30; // 중심 정렬
+      const y = window.innerHeight - groundHeight - boxHeight;
+
+      box.style.left = x + 'px';
+      box.style.top = y + 'px';
+
+      simulator.appendChild(box);
+
+      stopTracking(); // 클릭 후 추적 모드 종료
+    }
+  </script>
 
 </body>
 </html>

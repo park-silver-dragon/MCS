@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test15</title>
+  <title>test16</title>
   <style>
     html, body {
       margin: 0;
@@ -157,14 +157,16 @@
     }
 
     .arrow {
-      position: absolute;
-      top: 50%;
-      left: 105%;
-      transform: translateY(-50%);
-      font-size: 20px;
-      color: black;
-      pointer-events: none;
-    }
+  position: absolute;
+  top: 50%;
+  left: 105%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+  user-select: none;
+}
   </style>
 </head>
 <body>
@@ -298,6 +300,11 @@
       const arrow = document.createElement('div');
       arrow.className = 'arrow';
       arrow.textContent = '→';
+
+      arrow.addEventListener('click', (e) => {
+  e.stopPropagation(); // 상자 클릭 막기
+  arrow.textContent = arrow.textContent === '→' ? '←' : '→';
+});
       box.appendChild(arrow);
 
       doneBtn.addEventListener('click', () => {

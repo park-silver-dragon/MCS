@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test11</title>
+  <title>test12</title>
   <style>
     html, body {
       margin: 0;
@@ -82,6 +82,7 @@
 
     .input-with-unit {
       position: relative;
+      width: 100%;
     }
 
     .input-with-unit input {
@@ -103,11 +104,9 @@
 
     .done-btn {
       position: absolute;
-      top: -24px;
-      left: 50%;
-      transform: translateX(-50%);
+      width: 60px;
       font-size: 12px;
-      padding: 2px 8px;
+      padding: 3px 0;
       border: 1px solid #1e8449;
       background-color: #27ae60;
       color: white;
@@ -180,65 +179,49 @@
       box.style.left = x + 'px';
       box.style.top = y + 'px';
 
-      box.addEventListener('click', (event) => {
-        event.stopPropagation();
+      const doneBtn = document.createElement('button');
+      doneBtn.className = 'done-btn';
+      doneBtn.textContent = '완료';
+      doneBtn.style.left = `${x}px`;
+      doneBtn.style.top = `${y - 30}px`;
+      simulator.appendChild(doneBtn);
 
-        // 이미 열려있으면 무시
-        if (box.querySelector('.input-container')) return;
+      const inputContainer = document.createElement('div');
+      inputContainer.className = 'input-container';
 
-        // 입력 UI 생성
-        const inputContainer = document.createElement('div');
-        inputContainer.className = 'input-container';
+      const massRow = document.createElement('div');
+      massRow.className = 'input-with-unit';
+      const massInput = document.createElement('input');
+      massInput.type = 'number';
+      massInput.placeholder = '질량';
+      const massUnit = document.createElement('span');
+      massUnit.textContent = 'kg';
+      massRow.appendChild(massInput);
+      massRow.appendChild(massUnit);
 
-        // 질량 입력
-        const massRow = document.createElement('div');
-        massRow.className = 'input-with-unit';
-        const massInput = document.createElement('input');
-        massInput.type = 'number';
-        massInput.placeholder = '질량';
-        const massUnit = document.createElement('span');
-        massUnit.textContent = 'kg';
-        massRow.appendChild(massInput);
-        massRow.appendChild(massUnit);
+      const velRow = document.createElement('div');
+      velRow.className = 'input-with-unit';
+      const velInput = document.createElement('input');
+      velInput.type = 'number';
+      velInput.placeholder = '속도';
+      const velUnit = document.createElement('span');
+      velUnit.textContent = 'm/s';
+      velRow.appendChild(velInput);
+      velRow.appendChild(velUnit);
 
-        // 속도 입력
-        const velRow = document.createElement('div');
-        velRow.className = 'input-with-unit';
-        const velInput = document.createElement('input');
-        velInput.type = 'number';
-        velInput.placeholder = '속도';
-        const velUnit = document.createElement('span');
-        velUnit.textContent = 'm/s';
-        velRow.appendChild(velInput);
-        velRow.appendChild(velUnit);
+      inputContainer.appendChild(massRow);
+      inputContainer.appendChild(velRow);
+      box.appendChild(inputContainer);
 
-        inputContainer.appendChild(massRow);
-        inputContainer.appendChild(velRow);
-        box.appendChild(inputContainer);
+      doneBtn.addEventListener('click', () => {
+        const mass = massInput.value;
+        if (!mass || isNaN(mass)) {
+          alert('질량을 입력해주세요.');
+          return;
+        }
 
-        // 완료 버튼
-        const doneBtn = document.createElement('button');
-        doneBtn.className = 'done-btn';
-        doneBtn.textContent = '완료';
-
-        doneBtn.addEventListener('click', () => {
-          const mass = massInput.value;
-          const velocity = velInput.value;
-
-          if (!mass || isNaN(mass)) {
-            alert('질량을 입력해주세요.');
-            return;
-          }
-
-          // 입력창과 버튼 제거
-          inputContainer.remove();
-          doneBtn.remove();
-
-          // 질량 표시
-          box.textContent = `${mass} kg`;
-        });
-
-        box.appendChild(doneBtn);
+        doneBtn.remove();
+        box.innerHTML = `${mass} kg`;
       });
 
       simulator.appendChild(box);

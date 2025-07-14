@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test13</title>
+  <title>test14</title>
   <style>
     html, body {
       margin: 0;
@@ -125,7 +125,7 @@
       top: -50px;
       left: 50%;
       transform: translateX(-50%);
-      background-color: #e74c3c;
+      background-color: rgba(231, 76, 60, 0.85); /* 반투명 빨강 */
       color: white;
       padding: 12px 24px;
       border-radius: 6px;
@@ -160,6 +160,29 @@
       }
     }
 
+    /* 이동방향 화살표 스타일 */
+    .arrow {
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      margin-left: 5px;
+      width: 80px;
+      height: 12px;
+      background: linear-gradient(to right, #2980b9, #3498db);
+      border-radius: 6px;
+      transform: translateY(-50%);
+      z-index: 850;
+    }
+
+    .arrow::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+      border: 6px solid transparent;
+      border-left-color: #2980b9;
+    }
   </style>
 </head>
 <body>
@@ -252,7 +275,7 @@
       // 기본 질량/속도값 없으면 초기값 빈문자열
       objectData.set(box, { mass: '', velocity: '' });
 
-      // 완료 버튼 생성 (초기에는 hidden, 클릭시 위치 조정)
+      // 완료 버튼 생성
       const doneBtn = document.createElement('button');
       doneBtn.className = 'done-btn';
       doneBtn.textContent = '완료';
@@ -297,6 +320,11 @@
       let { inputContainer, massInput, velInput } = createInputContainer('', '');
       box.appendChild(inputContainer);
 
+      // 화살표 만들기 (초기 상태)
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow';
+      box.appendChild(arrow);
+
       doneBtn.addEventListener('click', () => {
         const mass = massInput.value.trim();
         const velocity = velInput.value.trim();
@@ -325,6 +353,9 @@
 
         // 질량만 있을 때는 질량만 표시, 둘 다 있으면 질량 표시
         box.innerHTML = `${mass} kg`;
+
+        // 화살표 다시 붙이기
+        box.appendChild(arrow);
       });
 
       // 상자 클릭시 다시 입력창과 완료 버튼 보여주기 + 기존값 불러오기
@@ -338,7 +369,15 @@
         let { inputContainer, massInput, velInput } = createInputContainer(savedData.mass, savedData.velocity);
         box.appendChild(inputContainer);
 
-        simulator.appendChild(doneBtn); // 완료 버튼 다시 추가
+        simulator.appendChild(doneBtn);
+
+        // 화살표는 입력중엔 안 보여야 하므로 숨김
+        arrow.style.display = 'none';
+      });
+
+      // 입력창 닫히면 화살표 다시 보이게 하기 위해 버튼 클릭 시 표시
+      doneBtn.addEventListener('click', () => {
+        arrow.style.display = 'block';
       });
 
       simulator.appendChild(box);

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test60</title>
+  <title>test61</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
     #createObjectBtn, #startStopBtn {
@@ -347,39 +347,61 @@ function stopMovement() {
 }
 
 function move() {
-  // 1. 물체 위치 업데이트 (기존 코드)
+  // 1. 물체 위치 업데이트
   objects.forEach(obj => {
     if (!obj.moving) return;
 
     const vx = obj.velocity * obj.direction;
     let newX = obj.x + vx;
 
+    // 벽 충돌 처리
     if (newX < wallThickness) {
       newX = wallThickness;
       obj.velocity = 0;
+      obj.moving = false;
     } else if (newX > window.innerWidth - wallThickness - boxSize) {
       newX = window.innerWidth - wallThickness - boxSize;
       obj.velocity = 0;
+      obj.moving = false;
     }
 
     obj.x = newX;
   });
 
-  // 2. 충돌 감지 (모든 쌍 검사)
+  // 2. 충돌 감지 및 처리
   for (let i = 0; i < objects.length; i++) {
     for (let j = i + 1; j < objects.length; j++) {
       const objA = objects[i];
       const objB = objects[j];
-      // 두 물체가 겹치는지 확인 (1차원 기준)
       if (objA.x < objB.x + boxSize && objA.x + boxSize > objB.x) {
-        // 충돌 감지됨!
-        console.log(`충돌 감지 between ${i} and ${j}`);
-        // 나중에 충돌 처리 함수 호출 예정
+        // 충돌 발생
+
+        const m1 = parseFloat(objA.mass) || 1;
+        const m2 = parseFloat(objB.mass) || 1;
+        const v1 = objA.velocity * objA.direction;
+        const v2 = objB.velocity * objB.direction;
+
+        // 1차원 탄성 충돌 공식
+        const v1After = ((m1 - m2) / (m1 + m2)) * v1 + (2 * m2 / (m1 + m2)) * v2;
+        const v2After = (2 * m1 / (m1 + m2)) * v1 + ((m2 - m1) / (m1 + m2)) * v2;
+
+        objA.velocity = Math.abs(v1After);
+        objA.direction = v1After >= 0 ? 1 : -1;
+        objA.moving = objA.velocity > 0;
+
+        objB.velocity = Math.abs(v2After);
+        objB.direction = v2After >= 0 ? 1 : -1;
+        objB.moving = objB.velocity > 0;
+
+        // 겹침 보정
+        const overlap = (objA.x + boxSize) - objB.x;
+        objA.x -= overlap / 2;
+        objB.x += overlap / 2;
       }
     }
   }
 
-  // 3. 화면 위치와 화살표 위치 업데이트 (기존 코드)
+  // 3. 화면 위치 및 화살표, 버튼 위치 업데이트
   objects.forEach(obj => {
     obj.element.style.left = obj.x + 'px';
 
@@ -387,8 +409,10 @@ function move() {
     const gap = -10;
     if (obj.direction === 1) {
       obj.arrow.style.left = (obj.x + boxSize + gap) + 'px';
+      obj.arrow.textContent = '→';
     } else {
       obj.arrow.style.left = (obj.x - arrowRect.width - gap) + 'px';
+      obj.arrow.textContent = '←';
     }
     obj.arrow.style.top = (obj.y + (boxSize - arrowRect.height) / 2) + 'px';
 

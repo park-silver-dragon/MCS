@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>test26</title>
+  <title>test27</title>
   <style>
     html, body {
       margin: 0;
@@ -316,13 +316,17 @@
       arrow.textContent = '→';
 
       function updateArrowPosition() {
-        if (arrow.textContent === '→') {
-          arrow.style.left = (x + 70) + 'px';
-        } else {
-          arrow.style.left = (x - 70) + 'px';
-        }
-        arrow.style.top = (y + 30) + 'px';
-      }
+  const boxX = parseFloat(box.style.left);
+  const boxY = parseFloat(box.style.top);
+
+  if (arrow.textContent === '→') {
+    arrow.style.left = (boxX + 60 + 10) + 'px'; // 상자 오른쪽에 10px만 띄움
+  } else {
+    arrow.style.left = (boxX - 40) + 'px'; // 상자 왼쪽에 더 가까이
+  }
+
+  arrow.style.top = (boxY + 30) + 'px'; // 상자 중앙 높이
+}
       updateArrowPosition();
       simulator.appendChild(arrow);
 

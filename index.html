@@ -217,12 +217,17 @@ const arrows = [];
   frictionInput.addEventListener('change', () => {
   const val = parseFloat(frictionInput.value);
   if (!isNaN(val) && val >= 0 && val <= 1) {
-    friction = val;
-    ground.classList.add('friction-active'); // 외곽선 표시
-    frictionInput.style.display = 'none';
+  friction = val;
+
+  // 🔽 마찰 계수가 0보다 크면 외곽선 추가, 아니면 제거
+  if (friction > 0) {
+    ground.classList.add('friction-active');
   } else {
-    showAlert('0~1 사이의 마찰 계수를 입력하세요');
+    ground.classList.remove('friction-active');
   }
+
+  frictionInput.style.display = 'none';
+}
 });
 
 btn.addEventListener('click', () => {
@@ -507,6 +512,9 @@ startStopBtn.addEventListener('click', () => {
   startStopBtn.style.background = '#27ae60';
   startStopBtn.style.borderColor = '#1e8449';
   moving = false;
+  
+  ground.classList.remove('friction-active'); // 바닥 외곽선 초기화
+  friction = 0;
 });
 
 let animationId = null;

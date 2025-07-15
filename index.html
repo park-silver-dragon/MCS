@@ -5,7 +5,8 @@
   <title>운동량 보존 시뮬레이터</title>
   <style>
     html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#eef2f3; font-family:Arial,sans-serif; }
-    #createObjectBtn, #startStopBtn {
+    
+#createObjectBtn, #startStopBtn {
   position: absolute;
   top: 20px;
   padding: 12px 20px;
@@ -20,8 +21,6 @@
   z-index: 1000;
 }
 
-
-/* 🔶 createObjectBtn 기본 상태 */
 #createObjectBtn {
   left: 20px;
   background: #e67e22;
@@ -29,32 +28,29 @@
   border: 3px solid #d35400;
 }
 
-/* 🔁 tracking 상태 (취소 상태) */
 #createObjectBtn.tracking {
   background: #f39c12;
   border-color: #d68910;
 }
 
-/* ⬇ 눌렀을 때: 일반 상태 */
 #createObjectBtn:active:not(.tracking) {
   background: #d35400 !important;
   border-color: #a04000 !important;
 }
 
-/* ⬇ 눌렀을 때: tracking 상태 */
 #createObjectBtn.tracking:active {
   background: #e67e22 !important;
   border-color: #b9770e !important;
 }
 
-/* ✅ startStopBtn은 그대로 유지 */
 #startStopBtn {
   left: 140px;
   background: #27ae60;
   color: #fff;
   border: 3px solid #1e8449;
 }
-    #resetBtn {
+    
+#resetBtn {
   position: absolute;
   left: 260px;
   top: 20px;
@@ -64,7 +60,7 @@
   width:110px;
   text-align:center;
   cursor: pointer;
-  background: #8e44ad; /* 보라색 */
+  background: #8e44ad;
   color: #fff;
   border: 3px solid #6c3483;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -72,7 +68,7 @@
   user-select: none;
 }
     
-    #totalMomentum {
+#totalMomentum {
   position: absolute;
   top: 20px;
   right: 20px;
@@ -85,15 +81,19 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   z-index: 1000;
 }
-    #createObjectBtn {
-      left:20px; background:#e67e22; color:#fff;
-      border:3px solid #d35400;
-    }
-    #startStopBtn {
-      left:140px; background:#27ae60; color:#fff;
-      border:3px solid #1e8449;
-    }
-    #ground {
+    
+#createObjectBtn {
+  left:20px; background:#e67e22; 
+  color:#fff;
+  border:3px solid #d35400;
+}
+   
+#startStopBtn {
+  left:140px; background:#27ae60; color:#fff;
+  border:3px solid #1e8449;
+}
+    
+#ground {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -104,24 +104,26 @@
   border-left: none;
   border-right: none;
   border-bottom: none;
-  z-index: 30; /* 20인 #simulator보다 크게 */
+  z-index: 30; 
 }
 
 #ground.friction-active {
-  border-top: 4px solid red;  /* 좀 더 굵게 */
+  border-top: 4px solid red;
 }
-    #simulator {
-      position:absolute; top:0; left:0;
-      width:100%; height:calc(100% - 120px);
-      background:#fff; z-index:20;
-      overflow: hidden;
-    }
-    #followBox {
-      position:absolute; width:60px; height:60px;
-      background:rgba(52,152,219,0.5); border-radius:6px;
-      display:none; z-index:900; transform:translate(-50%,0);
-      pointer-events:none;
-    }
+    
+#simulator {
+  position:absolute; top:0; left:0;
+  width:100%; height:calc(100% - 120px);
+  background:#fff; z-index:20;
+  overflow: hidden;
+}
+    
+#followBox {
+  position:absolute; width:60px; height:60px;
+  background:rgba(52,152,219,0.5); border-radius:6px;
+  display:none; z-index:900; transform:translate(-50%,0);
+  pointer-events:none;
+}
     .object {
       position:absolute; width:60px; height:60px;
       background:#3498db; border:2px solid #2c3e50; border-radius:6px;
@@ -131,17 +133,17 @@
     }
     .label-text { font-size:14px; color:#fff; pointer-events:none; user-select:none; }
     .momentum-label {
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 12px;
-  color: #000;
-  font-weight: bold;
-  pointer-events: none;
-  user-select: none;
-  white-space: nowrap; /* <-- 이 줄 추가 */
-}
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #000;
+      font-weight: bold;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+   }
     .input-container { display:flex; flex-direction:column; gap:4px; width:100%; }
     .input-with-unit { position:relative; width:100%; }
     .input-with-unit input {
@@ -157,13 +159,13 @@
       border-radius:4px; cursor:pointer; z-index:1001;
       user-select:none;
     }
-    #alertBox {
-      position:fixed; top:-50px; left:50%; transform:translateX(-50%);
-      background:rgba(231,76,60,0.85); color:#fff;
-      padding:12px 24px; border-radius:6px; font-weight:bold;
-      box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:2000;
-      opacity:0.85; animation-fill-mode:forwards;
-    }
+#alertBox {
+  position:fixed; top:-50px; left:50%; transform:translateX(-50%);
+  background:rgba(231,76,60,0.85); color:#fff;
+  padding:12px 24px; border-radius:6px; font-weight:bold;
+  box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:2000;
+  opacity:0.85; animation-fill-mode:forwards;
+}
     @keyframes dropDown {
       0% { top:-50px; opacity:0 }
       50%,100% { top:20px; opacity:1 }
@@ -182,7 +184,7 @@
   <input id="frictionInput" type="number" placeholder="마찰 계수 (0~1)" style="
   position: absolute;
   left: 50%;
-  bottom: 60px; /* 바닥 높이 120px의 중앙 */
+  bottom: 60px; 
   transform: translateX(-50%);
   display: none;
   padding: 8px;
@@ -212,11 +214,9 @@ const alertBox = document.getElementById('alertBox');
 const groundHeight = 120;
 const boxSize = 60;
 const wallThickness = 10;
-
 let tracking = false;
 let delayPassed = false;
 let moving = false;
-
 const objects = [];
 const arrows = [];
 
@@ -230,7 +230,6 @@ const arrows = [];
   if (!isNaN(val) && val >= 0 && val <= 1) {
   friction = val;
 
-  // 🔽 마찰 계수가 0보다 크면 외곽선 추가, 아니면 제거
   if (friction > 0) {
     ground.classList.add('friction-active');
   } else {
@@ -248,7 +247,7 @@ btn.addEventListener('click', () => {
   if (tracking) {
     followBox.style.display = 'block';
     btn.textContent = '취소';
-    btn.classList.add('tracking');  // ✅ 클래스만 추가
+    btn.classList.add('tracking'); 
     window.addEventListener('mousemove', followMouse);
     setTimeout(() => delayPassed = true, 300);
     window.addEventListener('click', handleClickOnce);
@@ -262,7 +261,7 @@ function stopTracking() {
   delayPassed = false;
   followBox.style.display = 'none';
   btn.textContent = '물체 생성';
-  btn.classList.remove('tracking');  // ✅ 클래스만 제거
+  btn.classList.remove('tracking'); 
   window.removeEventListener('mousemove', followMouse);
   window.removeEventListener('click', handleClickOnce);
 }
@@ -304,17 +303,16 @@ function createObject(x, y) {
   box.className = 'object';
   box.style.left = x + 'px';
   box.style.top = y + 'px';
-  // 질량 표시 (물체 안쪽)
-const label = document.createElement('div');
-label.className = 'label-text';
-label.textContent = '';
-box.appendChild(label);
-
-// 운동량 표시 (물체 위쪽)
-const momentumLabel = document.createElement('div');
-momentumLabel.className = 'momentum-label';
-momentumLabel.textContent = '';
-box.appendChild(momentumLabel);
+  
+  const label = document.createElement('div');
+  label.className = 'label-text';
+  label.textContent = '';
+  box.appendChild(label);
+  
+  const momentumLabel = document.createElement('div');
+  momentumLabel.className = 'momentum-label';
+  momentumLabel.textContent = '';
+  box.appendChild(momentumLabel);
 
   const arrow = document.createElement('div');
   arrow.className = 'arrow';
@@ -324,16 +322,13 @@ box.appendChild(momentumLabel);
   simulator.appendChild(arrow);
 
   const velocityLabel = document.createElement('div');
-velocityLabel.style.position = 'absolute';
-velocityLabel.style.fontSize = '10px';
-velocityLabel.style.fontWeight = 'bold';
-velocityLabel.style.color = '#000';
-velocityLabel.style.userSelect = 'none';
-velocityLabel.style.pointerEvents = 'none';
-
-simulator.appendChild(velocityLabel);
-
-  // 운동량 표시용 div 추가
+  velocityLabel.style.position = 'absolute';
+  velocityLabel.style.fontSize = '10px';
+  velocityLabel.style.fontWeight = 'bold';
+  velocityLabel.style.color = '#000';
+  velocityLabel.style.userSelect = 'none';
+  velocityLabel.style.pointerEvents = 'none';
+  simulator.appendChild(velocityLabel);
   
 
   const data = {
@@ -351,17 +346,15 @@ simulator.appendChild(velocityLabel);
   velocityInput: null,
   momentumLabel: momentumLabel,
   label: label,
-  velocityLabel: velocityLabel,   // ← 이 부분 추가
+  velocityLabel: velocityLabel, 
 };
-
+  
   arrows.push(arrow);
   objects.push(data);
-
   positionArrow(data);
-
   box.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    openInput(data);
+  ev.stopPropagation();
+  openInput(data);
   });
 
   arrow.addEventListener('click', (ev) => {
@@ -377,15 +370,14 @@ function positionArrow(data) {
 
   if (data.direction === 1) {
     data.arrow.style.left = (data.x + boxSize + gap) + 'px';
-    data.velocityLabel.style.left = (data.x + boxSize + gap + 15) + 'px';  // 화살표 오른쪽에 속도 표시
+    data.velocityLabel.style.left = (data.x + boxSize + gap + 15) + 'px'; 
   } else {
     data.arrow.style.left = (data.x - arrowRect.width - gap) + 'px';
-    data.velocityLabel.style.left = (data.x - arrowRect.width - gap + 15) + 'px'; // 왼쪽 방향도 동일하게
+    data.velocityLabel.style.left = (data.x - arrowRect.width - gap + 15) + 'px';
   }
 
   data.arrow.style.top = boxY + 'px';
-  data.velocityLabel.style.top = (boxY + 40) + 'px';  // 화살표 바로 위에 위치
-
+  data.velocityLabel.style.top = (boxY + 40) + 'px'; 
   data.arrow.style.display = 'block';
   data.velocityLabel.style.display = 'block';
 }
@@ -401,7 +393,6 @@ function openInput(data) {
 
   const cont = document.createElement('div');
   cont.className = 'input-container';
-
   const massDiv = document.createElement('div');
   massDiv.className = 'input-with-unit';
   const massInput = document.createElement('input');
@@ -412,7 +403,6 @@ function openInput(data) {
   massSpan.textContent = 'kg';
   massDiv.appendChild(massInput);
   massDiv.appendChild(massSpan);
-
   const velDiv = document.createElement('div');
   velDiv.className = 'input-with-unit';
   const velInput = document.createElement('input');
@@ -423,25 +413,20 @@ function openInput(data) {
   velSpan.textContent = 'm/s';
   velDiv.appendChild(velInput);
   velDiv.appendChild(velSpan);
-
   cont.appendChild(massDiv);
   cont.appendChild(velDiv);
-
   const doneBtn = document.createElement('button');
   doneBtn.className = 'done-btn';
   doneBtn.textContent = '완료';
-
   doneBtn.style.left = data.x + 'px';
   doneBtn.style.top = (data.y - 30) + 'px';
-
   simulator.appendChild(doneBtn);
-
   data.element.appendChild(cont);
   data.inputContainer = cont;
   data.doneBtn = doneBtn;
   data.massInput = massInput;
   data.velocityInput = velInput;
-
+  
   massInput.focus();
 
   doneBtn.onclick = () => {
@@ -454,26 +439,21 @@ function openInput(data) {
 
     data.mass = m;
     data.velocity = v;
-
     data.inputContainer.remove();
     data.inputContainer = null;
     data.doneBtn.remove();
     data.doneBtn = null;
-
     data.mass = m;
-data.velocity = v;
-data.label.textContent = `${m} kg`;
-
-
+    data.velocity = v;
+    data.label.textContent = `${m} kg`;
     data.arrow.style.display = 'block';
-    // 운동량 계산 및 표시 (개별 물체)
+  
 const massNum = parseFloat(data.mass) || 0;
 const velocityNum = parseFloat(data.velocity) || 0;
-  data.velocityLabel.textContent = `${velocityNum} m/s`;
+data.velocityLabel.textContent = `${velocityNum} m/s`;
 const momentum = massNum * velocityNum * data.direction;
 data.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)} N·s`;
 
-// 총 운동량 다시 계산
 let totalMomentum = 0;
 objects.forEach(obj => {
   const m = parseFloat(obj.mass) || 0;
@@ -500,10 +480,7 @@ startStopBtn.addEventListener('click', () => {
 })
 
   document.getElementById('resetBtn').addEventListener('click', () => {
-  // 움직임 멈추기
   stopMovement();
-
-  // 물체, 화살표, 속도 표시 제거
   objects.forEach(obj => {
     obj.element.remove();
     obj.arrow.remove();
@@ -514,17 +491,12 @@ startStopBtn.addEventListener('click', () => {
 
   objects.length = 0;
   arrows.length = 0;
-
-  // 운동량 초기화
   document.getElementById('totalMomentum').textContent = '총 운동량: 0.00 N·s';
-
-  // 시작 버튼 초기화
   startStopBtn.textContent = '시작';
   startStopBtn.style.background = '#27ae60';
   startStopBtn.style.borderColor = '#1e8449';
-  moving = false;
-  
-  ground.classList.remove('friction-active'); // 바닥 외곽선 초기화
+  moving = false;  
+  ground.classList.remove('friction-active'); 
   friction = 0;
 });
 
@@ -578,7 +550,6 @@ function createParticles(x, y) {
 }
 
 function move() {
-  // 1. 물체 위치 업데이트
   objects.forEach(obj => {
     if (!obj.moving) return;
 
@@ -587,16 +558,11 @@ function move() {
 
     obj.x = newX;
   });
-
-  // 2. 충돌 감지 및 처리
   for (let i = 0; i < objects.length; i++) {
     for (let j = i + 1; j < objects.length; j++) {
       const objA = objects[i];
       const objB = objects[j];
       if (objA.x < objB.x + boxSize && objA.x + boxSize > objB.x) {
-        // 충돌 발생
-
-        // 충돌 후 파티클 효과 생성
         const collisionX = (objA.x + objB.x + boxSize) / 2;
         const collisionY = objA.y + boxSize / 2;
         createParticles(collisionX, collisionY);
@@ -605,20 +571,17 @@ function move() {
         const m2 = parseFloat(objB.mass) || 1;
         const v1 = objA.velocity * objA.direction;
         const v2 = objB.velocity * objB.direction;
-
-        // 1차원 탄성 충돌 공식
         const v1After = ((m1 - m2) / (m1 + m2)) * v1 + (2 * m2 / (m1 + m2)) * v2;
         const v2After = (2 * m1 / (m1 + m2)) * v1 + ((m2 - m1) / (m1 + m2)) * v2;
 
         objA.velocity = Math.abs(v1After);
         objA.direction = v1After >= 0 ? 1 : -1;
         objA.moving = objA.velocity > 0;
-
+        
         objB.velocity = Math.abs(v2After);
         objB.direction = v2After >= 0 ? 1 : -1;
         objB.moving = objB.velocity > 0;
 
-        // 겹침 보정
         const overlap = (objA.x + boxSize) - objB.x;
         objA.x -= overlap / 2;
         objB.x += overlap / 2;
@@ -626,7 +589,6 @@ function move() {
     }
   }
 
-  // 3. 운동량 계산 및 표시
   objects.forEach(obj => {
     const massNum = parseFloat(obj.mass) || 0;
     const velocityNum = parseFloat(obj.velocity) || 0;
@@ -634,7 +596,6 @@ function move() {
     obj.momentumLabel.textContent = `운동량: ${momentum.toFixed(2)} N·s`;
   });
 
-  // 4. 화면 위치 및 화살표, 속도 라벨, 버튼 위치 업데이트
   objects.forEach(obj => {
     obj.element.style.left = obj.x + 'px';
     if (friction > 0) {
@@ -680,8 +641,6 @@ function move() {
       
     }
   });
-
-  // 운동량 총합 계산 및 표시
   let totalMomentum = 0;
   objects.forEach(obj => {
     const massNum = parseFloat(obj.mass) || 0;

@@ -19,6 +19,9 @@
   transition: background-color 0.3s ease;
   z-index: 1000;
 }
+#ground.friction-active {
+  border-top: 5px solid red !important;
+}
 
 /* 🔶 createObjectBtn 기본 상태 */
 #createObjectBtn {
@@ -167,6 +170,8 @@
   </style>
 </head>
 <body>
+  <input id="frictionInput" type="number" placeholder="마찰 계수 (0~1)" style="position: absolute; bottom: 130px;
+    left: 20px; display: none; padding: 8px; font-size: 14px; border-radius: 6px; border: 2px solid #999; z-index: 1001;" />
   <button id="createObjectBtn">물체 생성</button>
   <button id="startStopBtn">시작</button>
   <button id="resetBtn">초기화</button>
@@ -176,7 +181,10 @@
   <div id="followBox"></div>
   <div id="alertBox" style="display:none;"></div>
   <script>
-    const btn = document.getElementById('createObjectBtn');
+let friction = 0;
+const frictionInput = document.getElementById('frictionInput');
+const ground = document.getElementById('ground');
+const btn = document.getElementById('createObjectBtn');
 const startStopBtn = document.getElementById('startStopBtn');
 const followBox = document.getElementById('followBox');
 const simulator = document.getElementById('simulator');
@@ -191,6 +199,22 @@ let moving = false;
 
 const objects = [];
 const arrows = [];
+
+  ground.addEventListener('click', () => {
+  frictionInput.style.display = 'block';
+  frictionInput.focus();
+});
+    
+  frictionInput.addEventListener('change', () => {
+  const val = parseFloat(frictionInput.value);
+  if (!isNaN(val) && val >= 0 && val <= 1) {
+    friction = val;
+    ground.classList.add('friction-active'); // 외곽선 표시
+    frictionInput.style.display = 'none';
+  } else {
+    showAlert('0~1 사이의 마찰 계수를 입력하세요');
+  }
+});
 
 btn.addEventListener('click', () => {
   tracking = !tracking;
@@ -585,6 +609,12 @@ function move() {
   // 4. 화면 위치 및 화살표, 속도 라벨, 버튼 위치 업데이트
   objects.forEach(obj => {
     obj.element.style.left = obj.x + 'px';
+    if (friction > 0) {
+  const sign = Math.sign(obj.velocity * obj.direction);
+  const newSpeed = Math.max(0, Math.abs(obj.velocity) - friction * 0.1);
+  obj.velocity = newSpeed;
+  if (newSpeed === 0) obj.moving = false;
+}
 
     const arrowRect = obj.arrow.getBoundingClientRect();
     const gap = -10;
@@ -618,6 +648,8 @@ function move() {
     if (obj.inputContainer) {
       obj.inputContainer.style.left = obj.x + 'px';
       obj.inputContainer.style.top = obj.y + 'px';
+
+      
     }
   });
 
@@ -630,6 +662,7 @@ function move() {
     totalMomentum += momentum;
   });
   document.getElementById('totalMomentum').textContent = `총 운동량: ${totalMomentum.toFixed(2)} N·s`;
+  
 
   animationId = requestAnimationFrame(move);
 }

@@ -626,7 +626,7 @@ function move() {
 
     if (obj.velocityLabel) {
       obj.velocityLabel.style.top = (obj.y + (boxSize - arrowRect.height) / 2 + 40) + 'px';
-      obj.velocityLabel.textContent = `${parseFloat(obj.velocity).toFixed(2)} m/s`;
+      obj.velocityLabel.textContent = `${parseFloat(obj.velocity).toFixed(1)} m/s`;
     }
 
     if (obj.doneBtn) {

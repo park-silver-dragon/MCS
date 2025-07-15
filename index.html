@@ -19,9 +19,7 @@
   transition: background-color 0.3s ease;
   z-index: 1000;
 }
-#ground.friction-active {
-  border-top: 5px solid red !important;
-}
+
 
 /* 🔶 createObjectBtn 기본 상태 */
 #createObjectBtn {
@@ -101,6 +99,9 @@
       background:linear-gradient(90deg,#7f8c8d,#bdc3c7);
       border-top:3px solid #2c3e50; z-index:10;
     }
+    #ground.friction-active {
+  border-top: 5px solid red !important;
+}
     #simulator {
       position:absolute; top:0; left:0;
       width:100%; height:calc(100% - 120px);

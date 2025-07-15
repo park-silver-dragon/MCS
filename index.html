@@ -225,21 +225,24 @@ const arrows = [];
   frictionInput.focus();
 });
     
-  frictionInput.addEventListener('change', () => {
+  frictionInput.addEventListener('input', () => {
   const val = parseFloat(frictionInput.value);
   if (!isNaN(val) && val >= 0 && val <= 1) {
-  friction = val;
-
-  if (friction > 0) {
-    ground.classList.add('friction-active');
-  } else {
-    ground.classList.remove('friction-active');
+    friction = val;
+    if (friction > 0) {
+      ground.classList.add('friction-active');
+    } else {
+      ground.classList.remove('friction-active');
+    }
   }
-
-  frictionInput.style.display = 'none';
-}
 });
 
+window.addEventListener('click', (e) => {
+  if (e.target !== ground && e.target !== frictionInput) {
+    frictionInput.style.display = 'none';
+  }
+});
+    
 btn.addEventListener('click', () => {
   tracking = !tracking;
   delayPassed = false;
@@ -298,6 +301,7 @@ function handleClickOnce(e) {
 
   stopTracking();
 }
+  
 function createObject(x, y) {
   const box = document.createElement('div');
   box.className = 'object';
@@ -488,6 +492,10 @@ startStopBtn.addEventListener('click', () => {
     if (obj.doneBtn) obj.doneBtn.remove();
     if (obj.inputContainer) obj.inputContainer.remove();
   });
+  frictionInput.value = '';
+  frictionInput.style.display = 'none';
+
+  
 
   objects.length = 0;
   arrows.length = 0;
